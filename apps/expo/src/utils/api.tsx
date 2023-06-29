@@ -26,14 +26,11 @@ const getBaseUrl = () => {
    * **NOTE**: This is only for development. In production, you'll want to set the
    * baseUrl to your production API URL.
    */
-  const debuggerHost =
-    Constants.manifest?.debuggerHost ??
-    Constants.manifest2?.extra?.expoGo?.debuggerHost;
-  const localhost = debuggerHost?.split(":")[0];
+  const localhost = Constants.manifest?.debuggerHost?.split(":")[0];
   if (!localhost) {
-    // return "https://your-production-url.com";
-    throw new Error(
-      "Failed to get localhost. Please point to your production server.",
+    return (
+      (Constants.expoConfig?.extra?.API_URL as string | undefined) ||
+      "https://listen-together-nextjs.vercel.app/"
     );
   }
   return `http://${localhost}:3000`;

@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { Stack } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 
 import { TRPCProvider } from "~/utils/api";
@@ -9,17 +9,20 @@ import { TRPCProvider } from "~/utils/api";
 // This is the main layout of the app
 // It wraps your pages with the providers they need
 const RootLayout = () => {
+  const router = useRouter();
+  useEffect(() => {
+    router.push("/tabbar/");
+    // You can add any code you want to run on app start here
+  }, []);
   return (
     <TRPCProvider>
       <SafeAreaProvider>
-        <View className="bg-brand-primary flex-1">
+        <View className=" flex-1">
           <Stack
             screenOptions={{
-              headerStyle: {
-                backgroundColor: "#f472b6",
-              },
+              headerShown: false,
             }}
-          />
+          ></Stack>
           <StatusBar />
         </View>
       </SafeAreaProvider>
