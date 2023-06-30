@@ -1,23 +1,18 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import { View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { Stack, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { TRPCProvider } from "~/utils/api";
 
-// This is the main layout of the app
-// It wraps your pages with the providers they need
 const RootLayout = () => {
-  const router = useRouter();
-  useEffect(() => {
-    router.push("/auth/login");
-    // You can add any code you want to run on app start here
-  }, []);
   return (
     <TRPCProvider>
       <SafeAreaProvider>
         <View className="flex-1">
+          <AuthInitialize />
           <Stack
             screenOptions={{
               headerShown: false,
@@ -31,3 +26,22 @@ const RootLayout = () => {
 };
 
 export default RootLayout;
+
+const AuthInitialize = () => {
+  const router = useRouter();
+
+  const initalizeAuth = useCallback(async () => {
+    const accessToken = await AsyncStorage.getItem("accessToken");
+    if (!accessToken) {
+      router.push("/tabbar/home");
+    } else {
+      router.push("/auth/login");
+    }
+  }, [router]);
+
+  useEffect(() => {
+    void initalizeAuth();
+  }, [initalizeAuth]);
+
+  return <></>;
+};

@@ -3,6 +3,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import WebView, { type WebViewNavigation } from "react-native-webview";
 import Constants from "expo-constants";
 import { useRouter } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const clientId = "3fd0b855d9be4752bf7529976415a1d9";
 const redirect_url = "https://listen-together-nextjs.vercel.app/api/spotify";
@@ -16,14 +17,14 @@ const SpotifyLogin = () => {
   const router = useRouter();
   console.log(authUrl, "authUrl");
 
-  const handleNavigationStateChange = (event: WebViewNavigation) => {
+  const handleNavigationStateChange = async (event: WebViewNavigation) => {
     const { url } = event;
 
     if (url && url.startsWith(redirect_url)) {
       const accessToken = url?.match(/access_token=([^&]+)/)[1];
-      console.log(accessToken, "accessToken");
 
       if (accessToken) {
+        await AsyncStorage.setItem("accessToken", accessToken);
         router.push("/tabbar/home");
       }
     }
