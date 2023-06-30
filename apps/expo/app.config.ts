@@ -35,6 +35,8 @@ const defineConfig = (): ExpoConfig => ({
     eas: {
       projectId: "565fd771-5291-4b50-b42f-00294b56217c",
     },
+    spotifyClientId: process.env.SPOTIFY_CLIENT_ID,
+    apiUrl: process.env.API_URL ?? "localhost:3000",
   },
   plugins: ["./expo-plugins/with-modify-gradle.js"],
 });

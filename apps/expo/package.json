@@ -7,9 +7,12 @@
     "dev": "expo start ",
     "dev:android": "expo start --android",
     "dev:ios": "expo start --ios",
+    "build:dev": "yarn with-env eas build --profile development",
+    "build:preview": "yarn with-env eas build --profile preview",
     "lint": "eslint .",
-    "lint:fix": "pnpm lint --fix",
-    "type-check": "tsc --noEmit"
+    "lint:fix": "yarn lint --fix",
+    "type-check": "tsc --noEmit",
+    "with-env": "dotenv -e ../../.env --"
   },
   "dependencies": {
     "@expo/metro-config": "^0.7.1",
@@ -33,6 +36,7 @@
     "react-native-gesture-handler": "~2.9.0",
     "react-native-safe-area-context": "4.5.3",
     "react-native-screens": "~3.20.0",
+    "react-native-webview": "^13.2.2",
     "superjson": "1.9.1"
   },
   "devDependencies": {

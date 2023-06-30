@@ -11,13 +11,13 @@ import { TRPCProvider } from "~/utils/api";
 const RootLayout = () => {
   const router = useRouter();
   useEffect(() => {
-    router.push("/tabbar/");
+    router.push("/auth/login");
     // You can add any code you want to run on app start here
   }, []);
   return (
     <TRPCProvider>
       <SafeAreaProvider>
-        <View className=" flex-1">
+        <View className="flex-1">
           <Stack
             screenOptions={{
               headerShown: false,

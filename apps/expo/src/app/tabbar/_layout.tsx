@@ -1,7 +1,7 @@
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Tabs } from "expo-router";
 
-import AppTabBar from "~/components/tabbar/tabbat";
+import AppTabBar from "~/components/tabbar/tabbar";
 
 const BottomTabs = () => {
   return (
