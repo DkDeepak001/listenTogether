@@ -1,16 +1,29 @@
 import React from "react";
 import { Text, View } from "react-native";
+import { Image } from "expo-image";
 
 import { api } from "~/utils/api";
+import useAccessToken from "../hooks/useAccessToken";
 
 const Home = () => {
-  const { data: getPlaylist } = api.spotify.getPlaylist.useQuery({
-    accessToken:
-      "BQBSbX7uisiCLq2OGfgtSbTEnfEeDKLXy_gsDjuFJ7uJ0NBKpGg2W_xMa7jM6ulHFU1og_2-37WEcab0S0OhaYmXAnC-MEnWPiohJn6v7nHNbxY77ocuQkHMeVs5emPl1m8cmMCiDPEHq0vIQIE4OrTUVlG0nZbypYi4xyI23GmDnDezbGkvmArjlvSBskykrQhzEJpesgNXXU4",
+  const { accessToken } = useAccessToken();
+  console.log(accessToken, "accessToken");
+
+  const { data: user } = api.spotify.getUser.useQuery({
+    accessToken: accessToken ?? "",
   });
-  console.log(getPlaylist);
+
   return (
     <View>
+      <View>
+        <Text>{user?.display_name}</Text>
+        <Image
+          source={{ uri: user?.images[0]?.url ?? "" }}
+          className="h-20 w-20 rounded-full"
+          alt="user profile image"
+        />
+      </View>
+
       <Text>Home</Text>
     </View>
   );
