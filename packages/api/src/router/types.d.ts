@@ -32,3 +32,16 @@ export interface User {
   type: string;
   uri: string;
 }
+
+export type AccessTokenInfo = {
+  access_token: string;
+  token_type: string;
+  expires_in: number;
+  refresh_token: string;
+  scope: string;
+};
+
+export type ErrorResponse = {
+  error: string;
+  error_description: string;
+};

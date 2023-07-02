@@ -32,12 +32,12 @@ const AuthInitialize = () => {
 
   const initalizeAuth = useCallback(async () => {
     const accessToken = await AsyncStorage.getItem("accessToken");
-
-    if (accessToken) {
-      router.push("/tabbar/home");
-    } else {
-      router.push("/auth/login");
-    }
+    router.push("/auth/login");
+    // if (accessToken) {
+    //   router.push("/tabbar/home");
+    // } else {
+    //   router.push("/auth/login");
+    // }
   }, [router]);
 
   useEffect(() => {

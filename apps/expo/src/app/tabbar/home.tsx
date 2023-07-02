@@ -9,19 +9,21 @@ const Home = () => {
   const { accessToken } = useAccessToken();
   console.log(accessToken, "accessToken");
 
-  const { data: user } = api.spotify.getUser.useQuery({
+  const { data: user, isLoading } = api.spotify.getUser.useQuery({
     accessToken: accessToken ?? "",
   });
+  console.log(user, "user");
+  if (isLoading || !user) return <Text>Loading...</Text>;
 
   return (
     <View>
-      <View>
+      <View className="mx-5 w-full ">
         <Text>{user?.display_name}</Text>
-        <Image
+        {/* <Image
           source={{ uri: user?.images[0]?.url ?? "" }}
           className="h-20 w-20 rounded-full"
           alt="user profile image"
-        />
+        /> */}
       </View>
 
       <Text>Home</Text>

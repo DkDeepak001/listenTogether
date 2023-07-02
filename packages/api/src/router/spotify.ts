@@ -4,26 +4,20 @@ import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { type User } from "./types";
 
 export const spotifyRouter = createTRPCRouter({
-  getUser: publicProcedure
-    .input(
-      z.object({
-        accessToken: z.string().min(1),
-      }),
-    )
-    .query(async ({ input }) => {
-      try {
-        const res = await fetch("https://api.spotify.com/v1/me", {
-          headers: {
-            Authorization: "Bearer " + input.accessToken,
-          },
-        });
-        const data = res.json().then((data): Promise<User> => {
-          return data;
-        });
-
+  getUser: publicProcedure.input(z.object({})).query(async ({ ctx }) => {
+    try {
+      const res = await fetch("https://api.spotify.com/v1/me", {
+        headers: {
+          Authorization: "Bearer " + ctx.accessToken,
+        },
+      });
+      const data = res.json().then((data): Promise<User> => {
+        console.log(data, "data from spotify route r");
         return data;
-      } catch (error) {
-        console.log("error", error);
-      }
-    }),
+      });
+      return data;
+    } catch (error) {
+      console.log("error", error);
+    }
+  }),
 });

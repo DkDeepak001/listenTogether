@@ -14,6 +14,9 @@ import { ZodError } from "zod";
 import { getServerSession, type Session } from "@acme/auth";
 import { prisma } from "@acme/db";
 
+import { type AccessTokenInfo, type ErrorResponse } from "./router/types";
+import { getAccessToken } from "./utils";
+
 /**
  * 1. CONTEXT
  *
@@ -25,6 +28,7 @@ import { prisma } from "@acme/db";
  */
 type CreateContextOptions = {
   session: Session | null;
+  accessToken: string;
 };
 
 /**
@@ -39,6 +43,7 @@ type CreateContextOptions = {
 const createInnerTRPCContext = (opts: CreateContextOptions) => {
   return {
     session: opts.session,
+    accessToken: opts.accessToken,
     prisma,
   };
 };
@@ -51,11 +56,25 @@ const createInnerTRPCContext = (opts: CreateContextOptions) => {
 export const createTRPCContext = async (opts: CreateNextContextOptions) => {
   const { req, res } = opts;
 
+  if (!req.headers.authorization) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "You must be logged in to do that",
+    });
+  }
+  let accessToken: AccessTokenInfo = await getAccessToken(
+    req.headers.authorization,
+  );
+  if ("error" in accessToken) {
+    accessToken = await getAccessToken(req.headers.authorization);
+  }
+
   // Get the session from the server using the unstable_getServerSession wrapper function
   const session = await getServerSession({ req, res });
 
   return createInnerTRPCContext({
     session,
+    accessToken: accessToken?.access_token,
   });
 };
 
