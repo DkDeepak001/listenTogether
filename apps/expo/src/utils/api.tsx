@@ -50,11 +50,6 @@ export function TRPCProvider(props: { children: React.ReactNode }) {
       links: [
         httpBatchLink({
           url: `${getBaseUrl()}/api/trpc`,
-          async headers() {
-            return {
-              authorization: await AsyncStorage.getItem("code"),
-            };
-          },
         }),
       ],
     }),

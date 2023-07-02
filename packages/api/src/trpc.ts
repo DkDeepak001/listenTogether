@@ -14,9 +14,6 @@ import { ZodError } from "zod";
 import { getServerSession, type Session } from "@acme/auth";
 import { prisma } from "@acme/db";
 
-import { type AccessTokenInfo, type ErrorResponse } from "./router/types";
-import { getAccessToken } from "./utils";
-
 /**
  * 1. CONTEXT
  *
@@ -28,9 +25,6 @@ import { getAccessToken } from "./utils";
  */
 type CreateContextOptions = {
   session: Session | null;
-  accessToken: string;
-  code: string;
-  refreshToken: string;
 };
 
 /**
@@ -45,9 +39,7 @@ type CreateContextOptions = {
 const createInnerTRPCContext = (opts: CreateContextOptions) => {
   return {
     session: opts.session,
-    accessToken: opts.accessToken,
-    code: opts.code,
-    refreshToken: opts.refreshToken,
+
     prisma,
   };
 };
@@ -60,24 +52,11 @@ const createInnerTRPCContext = (opts: CreateContextOptions) => {
 export const createTRPCContext = async (opts: CreateNextContextOptions) => {
   const { req, res } = opts;
 
-  if (!req.headers.authorization) {
-    throw new TRPCError({
-      code: "UNAUTHORIZED",
-      message: "You must be logged in to do that",
-    });
-  }
-  const accessToken: AccessTokenInfo = await getAccessToken(
-    req.headers.authorization,
-  );
-
   // Get the session from the server using the unstable_getServerSession wrapper function
   const session = await getServerSession({ req, res });
 
   return createInnerTRPCContext({
     session,
-    code: req.headers.authorization,
-    accessToken: accessToken?.access_token,
-    refreshToken: accessToken?.refresh_token,
   });
 };
 
@@ -128,18 +107,13 @@ export const publicProcedure = t.procedure;
  * procedure
  */
 const enforceUserIsAuthed = t.middleware(async ({ ctx, next }) => {
-  const user = await ctx.prisma.user.findFirst({
-    where: {
-      code: ctx.code,
-    },
-  });
-  if (!user) {
+  if (!ctx.session?.user) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
   return next({
     ctx: {
       // infers the `session` as non-nullable
-      session: { ...ctx.session, user: user },
+      session: { ...ctx.session, user: ctx.session.user },
     },
   });
 });

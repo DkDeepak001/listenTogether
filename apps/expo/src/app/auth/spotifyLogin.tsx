@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import WebView, { type WebViewNavigation } from "react-native-webview";
 import { useRouter } from "expo-router";
@@ -19,25 +19,47 @@ const authUrl = `https://accounts.spotify.com/authorize?client_id=${clientId}&re
 
 const SpotifyLogin = () => {
   const router = useRouter();
+  const [counter, setCounter] = useState(0);
+  const [codeProcessed, setCodeProcessed] = useState(false); // Add state variable
 
-  const { mutateAsync: createUser } = api.user.create.useMutation();
+  const { mutateAsync: createUser } = api.user.create.useMutation({
+    onSuccess: () => {
+      console.log("onSuccess use created sucess");
+      router.push("/tabbar/home");
+    },
+  });
+  const { mutateAsync: getToken } = api.user.getToken.useMutation({
+    onSuccess: async (data) => {
+      console.log(data, "data___________access_token");
+      await AsyncStorage.setItem("refresh_token", data?.refresh_token ?? "");
+      await AsyncStorage.setItem("access_token", data?.access_token ?? "");
+      await createUser({
+        accessToken: data?.access_token ?? "",
+        refreshToken: data?.refresh_token ?? "",
+      });
+    },
+  });
+
   const handleNavigationStateChange = async (event: WebViewNavigation) => {
     try {
       const { url } = event;
 
-      const code = url?.match(/code=([^&]+)/)[1];
+      if (!codeProcessed && url && url.startsWith(redirect_url)) {
+        console.log(counter, "counter");
+        setCounter(counter + 1);
+        setCodeProcessed(true);
+        const code = url?.match(/code=([^&]+)/)[1];
+        if (!code) return;
+        const data = await getToken({ code });
+        console.log(data, "data");
 
-      if (url && url.startsWith(redirect_url)) {
-        if (code) {
-          await AsyncStorage.setItem("code", code);
-          await createUser({ code });
-          router.push("/tabbar/home");
-        }
+        router.push("/tabbar/home");
       }
     } catch (error) {
       console.log(error, "error");
     }
   };
+
   return (
     <SafeAreaView className="flex flex-1 justify-center bg-black ">
       <WebView

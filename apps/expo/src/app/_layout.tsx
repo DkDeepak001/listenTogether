@@ -5,7 +5,7 @@ import { Stack, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import { api, TRPCProvider } from "~/utils/api";
+import { TRPCProvider } from "~/utils/api";
 
 const RootLayout = () => {
   return (
@@ -30,8 +30,10 @@ export default RootLayout;
 const AuthInitialize = () => {
   const router = useRouter();
   const initalizeAuth = useCallback(async () => {
-    const code = await AsyncStorage.getItem("code");
-    if (code) {
+    const access_token = await AsyncStorage.getItem("access_token");
+    const refresh_token = await AsyncStorage.getItem("refresh_token");
+
+    if (access_token && refresh_token) {
       router.push("/tabbar/home");
     } else {
       router.push("/auth/login");
