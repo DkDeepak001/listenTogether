@@ -29,6 +29,7 @@ import { getAccessToken } from "./utils";
 type CreateContextOptions = {
   session: Session | null;
   accessToken: string;
+  code: string;
   refreshToken: string;
 };
 
@@ -45,6 +46,7 @@ const createInnerTRPCContext = (opts: CreateContextOptions) => {
   return {
     session: opts.session,
     accessToken: opts.accessToken,
+    code: opts.code,
     refreshToken: opts.refreshToken,
     prisma,
   };
@@ -73,6 +75,7 @@ export const createTRPCContext = async (opts: CreateNextContextOptions) => {
 
   return createInnerTRPCContext({
     session,
+    code: req.headers.authorization,
     accessToken: accessToken?.access_token,
     refreshToken: accessToken?.refresh_token,
   });
@@ -124,14 +127,19 @@ export const publicProcedure = t.procedure;
  * Reusable middleware that enforces users are logged in before running the
  * procedure
  */
-const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
-  if (!ctx.session?.user) {
+const enforceUserIsAuthed = t.middleware(async ({ ctx, next }) => {
+  const user = await ctx.prisma.user.findFirst({
+    where: {
+      code: ctx.code,
+    },
+  });
+  if (!user) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
   return next({
     ctx: {
       // infers the `session` as non-nullable
-      session: { ...ctx.session, user: ctx.session.user },
+      session: { ...ctx.session, user: user },
     },
   });
 });

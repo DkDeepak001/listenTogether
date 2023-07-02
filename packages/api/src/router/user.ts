@@ -1,3 +1,4 @@
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
@@ -23,7 +24,7 @@ export const userRouter = createTRPCRouter({
               country: data.country,
               display_name: data.display_name,
               email: data.email,
-              code: ctx.accessToken,
+              code: ctx.code,
               refreshToken: ctx.refreshToken,
               href: data.href,
               images: data.images[0] ? data.images[0].url : "",

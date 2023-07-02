@@ -26,4 +26,6 @@ model User {
   uri               String
   refreshToken      String
   code              String
+
+  @@index([spotifyId])
 }
