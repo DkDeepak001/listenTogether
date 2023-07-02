@@ -1,8 +1,10 @@
 import { spotifyRouter } from "./router/spotify";
+import { userRouter } from "./router/user";
 import { createTRPCRouter } from "./trpc";
 
 export const appRouter = createTRPCRouter({
   spotify: spotifyRouter,
+  user: userRouter,
 });
 
 // export type definition of API

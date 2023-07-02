@@ -29,6 +29,7 @@ import { getAccessToken } from "./utils";
 type CreateContextOptions = {
   session: Session | null;
   accessToken: string;
+  refreshToken: string;
 };
 
 /**
@@ -44,6 +45,7 @@ const createInnerTRPCContext = (opts: CreateContextOptions) => {
   return {
     session: opts.session,
     accessToken: opts.accessToken,
+    refreshToken: opts.refreshToken,
     prisma,
   };
 };
@@ -62,12 +64,9 @@ export const createTRPCContext = async (opts: CreateNextContextOptions) => {
       message: "You must be logged in to do that",
     });
   }
-  let accessToken: AccessTokenInfo = await getAccessToken(
+  const accessToken: AccessTokenInfo = await getAccessToken(
     req.headers.authorization,
   );
-  if ("error" in accessToken) {
-    accessToken = await getAccessToken(req.headers.authorization);
-  }
 
   // Get the session from the server using the unstable_getServerSession wrapper function
   const session = await getServerSession({ req, res });
@@ -75,6 +74,7 @@ export const createTRPCContext = async (opts: CreateNextContextOptions) => {
   return createInnerTRPCContext({
     session,
     accessToken: accessToken?.access_token,
+    refreshToken: accessToken?.refresh_token,
   });
 };
 

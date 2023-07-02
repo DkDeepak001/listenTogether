@@ -17,10 +17,23 @@ export const userRouter = createTRPCRouter({
             Authorization: "Bearer " + ctx.accessToken,
           },
         });
-        const data = res.json().then((data): Promise<User> => {
-            await ctx.prisma.user.create({
-                data: {
-                    
+        const data = res.json().then(async (data: User): Promise<User> => {
+          await ctx.prisma.user.create({
+            data: {
+              country: data.country,
+              display_name: data.display_name,
+              email: data.email,
+              code: ctx.accessToken,
+              refreshToken: ctx.refreshToken,
+              href: data.href,
+              images: data.images[0] ? data.images[0].url : "",
+              product: data.product,
+              type: data.type,
+              uri: data.uri,
+              spotifyId: data.id,
+            },
+          });
+          return data;
         });
         return data;
       } catch (error) {

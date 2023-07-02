@@ -1,11 +1,9 @@
 import React from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import WebView, { type WebViewNavigation } from "react-native-webview";
-import Constants from "expo-constants";
 import { useRouter } from "expo-router";
-// import { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET } from "@env";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { encode } from "base-64";
+
 import { api } from "~/utils/api";
 
 const clientId = "3fd0b855d9be4752bf7529976415a1d9";
@@ -22,7 +20,7 @@ const authUrl = `https://accounts.spotify.com/authorize?client_id=${clientId}&re
 const SpotifyLogin = () => {
   const router = useRouter();
 
-  const {mutateAsync:createUser} = api.
+  const { mutateAsync: createUser } = api.user.create.useMutation();
   const handleNavigationStateChange = async (event: WebViewNavigation) => {
     try {
       const { url } = event;
@@ -32,6 +30,7 @@ const SpotifyLogin = () => {
       if (url && url.startsWith(redirect_url)) {
         if (code) {
           await AsyncStorage.setItem("code", code);
+          await createUser({ code });
           router.push("/tabbar/home");
         }
       }
