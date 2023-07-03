@@ -8,7 +8,7 @@ import { api } from "~/utils/api";
 
 const clientId = "3fd0b855d9be4752bf7529976415a1d9";
 const redirect_url = "https://listen-together-nextjs.vercel.app/api/spotify";
-const scopes = ["user-read-email", "user-read-private"]; // Add necessary scopes
+const scopes = ["user-read-email", "user-read-private", "user-top-read"]; // Add necessary scopes
 const state = generateRandomString(16);
 
 const authUrl = `https://accounts.spotify.com/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(
@@ -31,12 +31,6 @@ const SpotifyLogin = () => {
   const { mutateAsync: getToken } = api.user.getToken.useMutation({
     onSuccess: async (data) => {
       console.log(data, "data___________access_token");
-      await AsyncStorage.setItem("refresh_token", data?.refresh_token ?? "");
-      await AsyncStorage.setItem("access_token", data?.access_token ?? "");
-      await createUser({
-        accessToken: data?.access_token ?? "",
-        refreshToken: data?.refresh_token ?? "",
-      });
     },
   });
 
@@ -51,6 +45,17 @@ const SpotifyLogin = () => {
         const code = url?.match(/code=([^&]+)/)[1];
         if (!code) return;
         const data = await getToken({ code });
+
+        const refreshToken = data?.refresh_token ?? "";
+        const accessToken = data?.access_token ?? "";
+
+        await AsyncStorage.setItem("refresh_token", refreshToken);
+        await AsyncStorage.setItem("access_token", accessToken);
+
+        await createUser({
+          accessToken: accessToken,
+          refreshToken: refreshToken,
+        });
         console.log(data, "data");
 
         router.push("/tabbar/home");

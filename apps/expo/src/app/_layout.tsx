@@ -18,7 +18,7 @@ const RootLayout = () => {
               headerShown: false,
             }}
           ></Stack>
-          <StatusBar />
+          <StatusBar backgroundColor="black" style="dark" />
         </View>
       </SafeAreaProvider>
     </TRPCProvider>

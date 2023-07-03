@@ -19,7 +19,7 @@ const AppTabBar = ({ state }: BottomTabBarProps) => {
 
   return (
     <SafeAreaView className="bg-white">
-      <View className="flex-row items-center justify-between bg-black px-8 py-3">
+      <View className="flex-row items-center justify-between bg-black/95 px-8 py-3">
         <Pressable onPress={() => void handlePress("/tabbar/home")}>
           <Image
             source={home}
