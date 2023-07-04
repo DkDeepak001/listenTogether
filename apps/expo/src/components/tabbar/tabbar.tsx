@@ -20,7 +20,12 @@ const AppTabBar = ({ state }: BottomTabBarProps) => {
   return (
     <SafeAreaView className="bg-white">
       <View className="flex-row items-center justify-between bg-black/95 px-8 py-3">
-        <Pressable onPress={() => void handlePress("/tabbar/home")}>
+        <Pressable
+          onPress={() => void handlePress("/tabbar/home")}
+          className={`flex h-14 w-1/6 items-center justify-center rounded-full ${
+            state.index === 0 ? "bg-blue-700" : ""
+          }  py-2`}
+        >
           <Image
             source={home}
             className="h-8 w-8 "
@@ -29,7 +34,12 @@ const AppTabBar = ({ state }: BottomTabBarProps) => {
           />
         </Pressable>
 
-        <Pressable onPress={() => void handlePress("/tabbar/search")}>
+        <Pressable
+          onPress={() => void handlePress("/tabbar/search")}
+          className={`flex h-14 w-1/6 items-center justify-center rounded-full ${
+            state.index === 1 ? "bg-blue-700" : ""
+          }  py-2`}
+        >
           <Image
             source={search}
             className={"h-10 w-12"}
@@ -38,7 +48,12 @@ const AppTabBar = ({ state }: BottomTabBarProps) => {
           />
         </Pressable>
 
-        <Pressable onPress={() => void handlePress("/tabbar/playlist")}>
+        <Pressable
+          onPress={() => void handlePress("/tabbar/playlist")}
+          className={`flex h-14 w-1/6 items-center justify-center rounded-full ${
+            state.index === 3 ? "bg-blue-700" : ""
+          }  py-2`}
+        >
           <Image
             source={playlist}
             className={"h-7 w-9"}
@@ -47,7 +62,12 @@ const AppTabBar = ({ state }: BottomTabBarProps) => {
           />
         </Pressable>
 
-        <Pressable onPress={() => void handlePress("/tabbar/friends")}>
+        <Pressable
+          onPress={() => void handlePress("/tabbar/friends")}
+          className={`flex h-14 w-1/6 items-center justify-center rounded-full ${
+            state.index === 2 ? "bg-blue-700" : ""
+          }  py-2`}
+        >
           <Image
             source={friends}
             className={"h-10 w-12"}
