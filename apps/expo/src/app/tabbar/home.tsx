@@ -3,6 +3,7 @@ import { Dimensions, FlatList, Pressable, Text, View } from "react-native";
 import { Image } from "expo-image";
 
 import { api } from "~/utils/api";
+import { getGreeting } from "~/utils/greeting";
 import useAuthToken from "../hooks/useAuthToken";
 
 const Home = () => {
@@ -37,9 +38,14 @@ const Home = () => {
 
   return (
     <View className=" flex-1  bg-black p-5">
-      <View className=" w-full ">
-        <Text className="text-lg font-extrabold text-white">
-          Hello {user?.display_name}
+      <View className="flex w-full flex-col gap-y-1  ">
+        <Text className="text-2xl font-extrabold text-white">
+          {getGreeting()},
+        </Text>
+        <Text className="mb-3 text-xl font-semibold text-white">
+          {user?.display_name?.charAt(0).toUpperCase() +
+            user?.display_name?.slice(1).toLowerCase()}
+          {" ✨"}
         </Text>
         <View className="my-3">
           <FlatList
@@ -47,8 +53,8 @@ const Home = () => {
             horizontal
             renderItem={({ item }) => (
               <Pressable
-                className={`ml-2 rounded-full bg-slate-950 px-5 py-2 ${
-                  type === item ? "bg-blue-500" : ""
+                className={`mr-2 rounded-full bg-gray-800 px-5 py-2 ${
+                  type === item ? "bg-blue-700" : ""
                 }`}
                 onPress={() => setType(item)}
               >
