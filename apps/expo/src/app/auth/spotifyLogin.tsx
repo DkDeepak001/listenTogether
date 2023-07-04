@@ -8,7 +8,13 @@ import { api } from "~/utils/api";
 
 const clientId = "3fd0b855d9be4752bf7529976415a1d9";
 const redirect_url = "https://listen-together-nextjs.vercel.app/api/spotify";
-const scopes = ["user-read-email", "user-read-private", "user-top-read"]; // Add necessary scopes
+const scopes = [
+  "user-read-email",
+  "user-read-private",
+  "user-top-read",
+  "playlist-read-private",
+  "playlist-read-collaborative",
+]; // Add necessary scopes
 const state = generateRandomString(16);
 
 const authUrl = `https://accounts.spotify.com/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(

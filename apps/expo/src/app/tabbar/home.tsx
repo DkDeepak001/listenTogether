@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import { Dimensions, FlatList, Pressable, Text, View } from "react-native";
+import { FlatList, Pressable, Text, View } from "react-native";
 import { Image } from "expo-image";
 
 import { api } from "~/utils/api";
 import { getGreeting } from "~/utils/greeting";
-import useAuthToken from "../hooks/useAuthToken";
+import useAuthToken from "../../hooks/useAuthToken";
 
 const Home = () => {
   const [type, setType] = useState<"artists" | "tracks">("tracks");
