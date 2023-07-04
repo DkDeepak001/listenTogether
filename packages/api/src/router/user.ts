@@ -15,8 +15,6 @@ export const userRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      console.log("getAccessToken called", input.code);
-
       return fetch("https://accounts.spotify.com/api/token", {
         method: "POST",
         headers: {
@@ -35,7 +33,6 @@ export const userRouter = createTRPCRouter({
       })
         .then((response) => response.json())
         .then((data): Promise<AccessTokenInfo> => {
-          console.log(data, "data from getAccessToken");
           return data as Promise<AccessTokenInfo>;
         })
         .catch((error) => {
@@ -51,8 +48,6 @@ export const userRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ input }) => {
-      console.log("getRefreshToken called", input.refresh_token);
-
       return fetch("https://accounts.spotify.com/api/token", {
         method: "POST",
         headers: {
@@ -87,8 +82,6 @@ export const userRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       try {
-        console.log("create called accessToken", input.accessToken);
-        console.log("create called refreshToken", input.refreshToken);
         return await fetch("https://api.spotify.com/v1/me", {
           headers: {
             Authorization: "Bearer " + input.accessToken,
@@ -96,7 +89,6 @@ export const userRouter = createTRPCRouter({
         })
           .then((res) => res.json())
           .then(async (data: User): Promise<User> => {
-            console.log(data, "data________________");
             await ctx.prisma.user.create({
               data: {
                 country: data.country,

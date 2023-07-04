@@ -8,9 +8,6 @@ const useAuthToken = () => {
   const [refreshToken, setRefreshToken] = useState<string | null>(null);
 
   const { mutateAsync: getNewToken } = api.user.getRefreshToken.useMutation({});
-  const { data, isError, refetch } = api.spotify.getUser.useQuery({
-    accessToken: authToken ?? "",
-  });
   const getRefreshToken = async () => {
     const refresh_token = await AsyncStorage.getItem("refresh_token");
     return refresh_token;
@@ -33,6 +30,7 @@ const useAuthToken = () => {
     const refreshToken = await getRefreshToken();
     const newToken = await getNewToken({ refresh_token: refreshToken ?? "" });
     setAuthToken(newToken.access_token ?? "");
+    await AsyncStorage.setItem("access_token", newToken.access_token ?? "");
   };
 
   return {

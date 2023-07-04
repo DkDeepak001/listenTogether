@@ -5,7 +5,7 @@ import AppTabBar from "~/components/tabbar/tabbar";
 
 const BottomTabs = () => {
   return (
-    <SafeAreaView className="flex-1">
+    <SafeAreaView className=" w-full flex-1">
       <Tabs
         screenOptions={{
           headerShown: false,

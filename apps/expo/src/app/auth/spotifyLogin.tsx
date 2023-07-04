@@ -28,11 +28,7 @@ const SpotifyLogin = () => {
       router.push("/tabbar/home");
     },
   });
-  const { mutateAsync: getToken } = api.user.getToken.useMutation({
-    onSuccess: async (data) => {
-      console.log(data, "data___________access_token");
-    },
-  });
+  const { mutateAsync: getToken } = api.user.getToken.useMutation({});
 
   const handleNavigationStateChange = async (event: WebViewNavigation) => {
     try {
