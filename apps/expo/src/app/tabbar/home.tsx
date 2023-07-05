@@ -4,6 +4,7 @@ import { Image } from "expo-image";
 
 import { api } from "~/utils/api";
 import { getGreeting } from "~/utils/greeting";
+import Pill from "~/components/pill/pill";
 import useAuthToken from "../../hooks/useAuthToken";
 
 type TopType = "tracks" | "artists";
@@ -15,13 +16,13 @@ const Home = () => {
   const { data: topTracks } = api.spotify.topTracks.useQuery();
   const { data: topArtists } = api.spotify.topArtists.useQuery();
 
-  if (isLoading) return <Text>Loading...</Text>;
+  if (isLoading || !user) return <Text>Loading...</Text>;
 
   // TODO add types to error
   if (topTracks?.error || topArtists?.error) {
-    if (top?.error?.status === 401) {
+    if (topTracks?.error?.status === 401) {
       updateToken();
-      refetch();
+      // refetch();
     }
   }
 
@@ -37,21 +38,11 @@ const Home = () => {
           {" ✨"}
         </Text>
         <View className="my-3">
-          <FlatList
+          <Pill
             data={["tracks", "artists"]}
             horizontal
-            renderItem={({ item }) => (
-              <Pressable
-                className={`mr-2 rounded-full bg-gray-800 px-5 py-2 ${
-                  type === item ? "bg-blue-700" : ""
-                }`}
-                onPress={() => setType(item as TopType)}
-              >
-                <Text className="text-sm font-semibold  text-white">
-                  {item[0] && item[0].toUpperCase() + item.slice(1)}
-                </Text>
-              </Pressable>
-            )}
+            selected={type}
+            set={(val) => setType(val as TopType)}
           />
         </View>
         {type === "tracks" && (

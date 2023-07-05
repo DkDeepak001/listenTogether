@@ -1,5 +1,8 @@
+import { z } from "zod";
+
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import {
+  type AlbumResponse,
   type PlaylistResponse,
   type TopArtistsResponse,
   type TrackResponse,
@@ -73,4 +76,42 @@ export const spotifyRouter = createTRPCRouter({
         console.log(err, "err from spotify router");
       });
   }),
+  search: protectedProcedure
+    .input(
+      z.object({
+        q: z.string(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      return await fetch(
+        `https://api.spotify.com/v1/search/?q=${input.q}&type=album,playlist,track,artist&limit=10`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: "Bearer " + ctx.accessToken,
+          },
+        },
+      )
+        .then((res) => res.json())
+        .then(
+          (
+            data,
+          ): Promise<{
+            artists: TopArtistsResponse;
+            tracks: TrackResponse;
+            playlists: PlaylistResponse;
+            albums: AlbumResponse;
+          }> => {
+            return data as Promise<{
+              artists: TopArtistsResponse;
+              tracks: TrackResponse;
+              playlists: PlaylistResponse;
+              albums: AlbumResponse;
+            }>;
+          },
+        )
+        .catch((err) => {
+          console.log(err, "err from spotify router");
+        });
+    }),
 });
