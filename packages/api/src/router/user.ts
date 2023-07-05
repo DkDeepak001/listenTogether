@@ -3,7 +3,7 @@ import { z } from "zod";
 import { type User } from "@acme/db";
 
 import { createTRPCRouter, publicProcedure } from "../trpc";
-import { type AccessTokenInfo, type TokenData } from "./types";
+import { type AccessTokenInfo, type TokenResponse } from "./types";
 
 const redirect_url = "https://listen-together-nextjs.vercel.app/api/spotify";
 
@@ -14,7 +14,7 @@ export const userRouter = createTRPCRouter({
         code: z.string(),
       }),
     )
-    .mutation(async ({ ctx, input }) => {
+    .mutation(async ({ input }) => {
       return fetch("https://accounts.spotify.com/api/token", {
         method: "POST",
         headers: {
@@ -63,12 +63,10 @@ export const userRouter = createTRPCRouter({
         body: `grant_type=refresh_token&refresh_token=${input.refresh_token}`,
       })
         .then((response) => response.json())
-        .then((data): Promise<TokenData> => {
-          console.log(data, "data from getRefreshToken");
-          return data as Promise<TokenData>;
+        .then((data): Promise<TokenResponse> => {
+          return data as Promise<TokenResponse>;
         })
         .catch((error) => {
-          console.log(error, "error from getRefreshToken");
           throw error;
         });
     }),

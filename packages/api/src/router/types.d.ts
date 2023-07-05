@@ -27,12 +27,65 @@ export type ErrorResponse = {
   error_description: string;
 };
 
-export type TokenData = {
+export interface ExternalIds {
+  isrc: string;
+}
+
+//_______________________________________
+// Spotify API Response Types
+export type TokenResponse = {
   access_token: string;
   token_type: string;
   expires_in: number;
   scope: string;
 };
+
+export interface TopArtistsResponse {
+  href: string;
+  limit: number;
+  next: string | null;
+  offset: number;
+  previous: string | null;
+  total: number;
+  items: Artist[];
+}
+
+export interface TrackResponse {
+  href: string;
+  limit: number;
+  next: string | null;
+  offset: number;
+  previous: string | null;
+  total: number;
+  items: Track[];
+}
+export interface PlaylistResponse {
+  href: string;
+  items: Playlist[];
+  limit: number;
+  next: null | string;
+  offset: number;
+  previous: null | string;
+  total: number;
+}
+//_______________________________________
+// Spotify Types
+export interface Playlist {
+  collaborative: boolean;
+  description: string;
+  external_urls: object[];
+  href: string;
+  id: string;
+  images: Image[];
+  name: string;
+  owner: Owner;
+  primary_color: null;
+  public: boolean;
+  snapshot_id: string;
+  tracks: object;
+  type: "playlist";
+  uri: string;
+}
 
 export interface Track {
   album: Album;
@@ -81,33 +134,4 @@ export interface Artist {
   popularity: number;
   type: "artist";
   uri: string;
-}
-
-export interface ExternalIds {
-  isrc: string;
-}
-
-export interface Followers {
-  href: null;
-  total: number;
-}
-
-export interface TopArtistsData {
-  href: string;
-  limit: number;
-  next: string | null;
-  offset: number;
-  previous: string | null;
-  total: number;
-  items: Artist[];
-}
-
-export interface TrackData {
-  href: string;
-  limit: number;
-  next: string | null;
-  offset: number;
-  previous: string | null;
-  total: number;
-  items: Track[];
 }

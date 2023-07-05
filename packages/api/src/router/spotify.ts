@@ -1,7 +1,9 @@
-import { z } from "zod";
-
 import { createTRPCRouter, protectedProcedure } from "../trpc";
-import { type TopArtistsData, type TrackData } from "./types";
+import {
+  type PlaylistResponse,
+  type TopArtistsResponse,
+  type TrackResponse,
+} from "./types";
 
 export const spotifyRouter = createTRPCRouter({
   self: protectedProcedure.query(async ({ ctx }) => {
@@ -16,7 +18,7 @@ export const spotifyRouter = createTRPCRouter({
       throw new Error("error in getUser");
     }
   }),
-  topTracks: protectedProcedure.query(async ({ ctx, input }) => {
+  topTracks: protectedProcedure.query(async ({ ctx }) => {
     return await fetch(
       `https://api.spotify.com/v1/me/top/tracks?limit=10&offset=1`,
       {
@@ -27,14 +29,14 @@ export const spotifyRouter = createTRPCRouter({
       },
     )
       .then((res) => res.json())
-      .then((data): Promise<TrackData> => {
-        return data as Promise<TrackData>;
+      .then((data): Promise<TrackResponse> => {
+        return data as Promise<TrackResponse>;
       })
       .catch((err) => {
         console.log(err, "err from spotify router");
       });
   }),
-  topArtists: protectedProcedure.query(async ({ ctx, input }) => {
+  topArtists: protectedProcedure.query(async ({ ctx }) => {
     return await fetch(
       `https://api.spotify.com/v1/me/top/artists?limit=10&offset=1`,
       {
@@ -45,8 +47,27 @@ export const spotifyRouter = createTRPCRouter({
       },
     )
       .then((res) => res.json())
-      .then((data): Promise<TopArtistsData> => {
-        return data as Promise<TopArtistsData>;
+      .then((data): Promise<TopArtistsResponse> => {
+        return data as Promise<TopArtistsResponse>;
+      })
+      .catch((err) => {
+        console.log(err, "err from spotify router");
+      });
+  }),
+
+  getUserPlaylists: protectedProcedure.query(async ({ ctx }) => {
+    return await fetch(
+      `https://api.spotify.com/v1/users/${ctx.session.user.spotifyId}/playlists`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: "Bearer " + ctx.accessToken,
+        },
+      },
+    )
+      .then((res) => res.json())
+      .then((data): Promise<PlaylistResponse> => {
+        return data as Promise<PlaylistResponse>;
       })
       .catch((err) => {
         console.log(err, "err from spotify router");
