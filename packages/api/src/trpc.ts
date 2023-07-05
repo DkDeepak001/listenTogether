@@ -12,7 +12,7 @@ import superjson from "superjson";
 import { ZodError } from "zod";
 
 import { getServerSession, type Session } from "@acme/auth";
-import { prisma } from "@acme/db";
+import { prisma, type User } from "@acme/db";
 
 /**
  * 1. CONTEXT
@@ -25,6 +25,8 @@ import { prisma } from "@acme/db";
  */
 type CreateContextOptions = {
   session: Session | null;
+  userId: string;
+  accessToken: string;
 };
 
 /**
@@ -39,8 +41,9 @@ type CreateContextOptions = {
 const createInnerTRPCContext = (opts: CreateContextOptions) => {
   return {
     session: opts.session,
-
+    userId: opts.userId,
     prisma,
+    accessToken: opts.accessToken,
   };
 };
 
@@ -52,11 +55,19 @@ const createInnerTRPCContext = (opts: CreateContextOptions) => {
 export const createTRPCContext = async (opts: CreateNextContextOptions) => {
   const { req, res } = opts;
 
+  const authHeader = req.headers.authorization;
+  const { userId, accessToken } = JSON.parse(authHeader as string) as {
+    userId: string;
+    accessToken: string;
+  };
+
   // Get the session from the server using the unstable_getServerSession wrapper function
   const session = await getServerSession({ req, res });
 
   return createInnerTRPCContext({
     session,
+    userId,
+    accessToken,
   });
 };
 
@@ -107,13 +118,19 @@ export const publicProcedure = t.procedure;
  * procedure
  */
 const enforceUserIsAuthed = t.middleware(async ({ ctx, next }) => {
-  if (!ctx.session?.user) {
+  const user = await ctx.prisma.user.findUnique({
+    where: {
+      id: ctx.userId,
+    },
+  });
+
+  if (!user) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
   return next({
     ctx: {
       // infers the `session` as non-nullable
-      session: { ...ctx.session, user: ctx.session.user },
+      session: { ...ctx.session, user },
     },
   });
 });

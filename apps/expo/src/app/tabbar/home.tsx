@@ -6,31 +6,20 @@ import { api } from "~/utils/api";
 import { getGreeting } from "~/utils/greeting";
 import useAuthToken from "../../hooks/useAuthToken";
 
+type TopType = "tracks" | "artists";
 const Home = () => {
-  const [type, setType] = useState<"artists" | "tracks">("tracks");
+  const [type, setType] = useState<TopType>("tracks");
   const { authToken, updateToken } = useAuthToken();
-  const {
-    data: user,
-    isLoading,
-    isError: getUserErr,
-  } = api.spotify.getUser.useQuery({
-    accessToken: authToken ?? "",
-  });
+  const { data: user, isLoading } = api.spotify.self.useQuery();
 
-  const {
-    data: top,
-    isError: topErr,
-    refetch,
-  } = api.spotify.top.useQuery({
-    type,
-    accessToken: authToken ?? "",
-  });
+  const { data: topTracks } = api.spotify.topTracks.useQuery();
+  const { data: topArtists } = api.spotify.topArtists.useQuery();
 
-  if (isLoading || !user) return <Text>Loading...</Text>;
+  if (isLoading) return <Text>Loading...</Text>;
 
   // TODO add types to error
-  if (top?.error || user?.error) {
-    if (top?.error?.status === 401 || user?.error?.status === 401) {
+  if (topTracks?.error || topArtists?.error) {
+    if (top?.error?.status === 401) {
       updateToken();
       refetch();
     }
@@ -56,10 +45,10 @@ const Home = () => {
                 className={`mr-2 rounded-full bg-gray-800 px-5 py-2 ${
                   type === item ? "bg-blue-700" : ""
                 }`}
-                onPress={() => setType(item)}
+                onPress={() => setType(item as TopType)}
               >
                 <Text className="text-sm font-semibold  text-white">
-                  {item[0].toUpperCase() + item.slice(1)}
+                  {item[0] && item[0].toUpperCase() + item.slice(1)}
                 </Text>
               </Pressable>
             )}
@@ -67,7 +56,7 @@ const Home = () => {
         </View>
         {type === "tracks" && (
           <FlatList
-            data={top?.items ?? []}
+            data={topTracks?.items ?? []}
             className="mb-16 "
             ListHeaderComponent={() => (
               <Text className="mb-3 text-xl font-extrabold text-white">
@@ -98,7 +87,7 @@ const Home = () => {
         )}
         {type === "artists" && (
           <FlatList
-            data={top?.items ?? []}
+            data={topArtists?.items ?? []}
             className="mb-16 "
             columnWrapperStyle={{
               justifyContent: "space-between",

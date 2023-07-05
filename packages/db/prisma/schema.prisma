@@ -18,7 +18,7 @@ model User {
   country           String
   display_name      String
   email             String
-  spotifyId         String 
+  spotifyId         String  @unique
   href              String
   images            String
   product           String

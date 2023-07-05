@@ -89,7 +89,7 @@ export const userRouter = createTRPCRouter({
         })
           .then((res) => res.json())
           .then(async (data: User): Promise<User> => {
-            await ctx.prisma.user.create({
+            return await ctx.prisma.user.create({
               data: {
                 country: data.country,
                 display_name: data.display_name,
@@ -103,7 +103,6 @@ export const userRouter = createTRPCRouter({
                 spotifyId: data.id,
               },
             });
-            return data;
           });
       } catch (error) {
         console.log("error", error);

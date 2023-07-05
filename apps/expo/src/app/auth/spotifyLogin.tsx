@@ -29,8 +29,8 @@ const SpotifyLogin = () => {
   const [codeProcessed, setCodeProcessed] = useState(false); // Add state variable
 
   const { mutateAsync: createUser } = api.user.create.useMutation({
-    onSuccess: () => {
-      console.log("onSuccess use created sucess");
+    onSuccess: async (variable) => {
+      await AsyncStorage.setItem("user_id", variable?.id ?? "");
       router.push("/tabbar/home");
     },
   });
@@ -58,9 +58,6 @@ const SpotifyLogin = () => {
           accessToken: accessToken,
           refreshToken: refreshToken,
         });
-        console.log(data, "data");
-
-        router.push("/tabbar/home");
       }
     } catch (error) {
       console.log(error, "error");
