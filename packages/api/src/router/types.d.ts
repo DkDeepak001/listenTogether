@@ -30,6 +30,18 @@ export type ErrorResponse = {
 export interface ExternalIds {
   isrc: string;
 }
+export interface Owner {
+  external_urls: object;
+  followers: {
+    href: string | null;
+    total: number;
+  };
+  href: string;
+  id: string;
+  type: string;
+  uri: string;
+  display_name: string | null;
+}
 
 //_______________________________________
 // Spotify API Response Types
