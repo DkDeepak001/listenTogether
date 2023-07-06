@@ -17,7 +17,19 @@ const RootLayout = () => {
             screenOptions={{
               headerShown: false,
             }}
-          ></Stack>
+          >
+            <Stack.Screen
+              name="friends/add"
+              options={{
+                headerShown: true,
+                title: "Search",
+                headerStyle: {
+                  backgroundColor: "black",
+                },
+                headerTintColor: "#fff",
+              }}
+            />
+          </Stack>
           <StatusBar backgroundColor="black" style="dark" />
         </View>
       </SafeAreaProvider>

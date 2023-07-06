@@ -26,5 +26,42 @@ model User {
   uri               String
   refreshToken      String
 
+  requestFrom      RequestLog[] @relation("requestFrom")
+  requestTo         RequestLog[] @relation("requestTo")
+  followers        Friends[] @relation("followers")
+  following        Friends[] @relation("following")
+
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+
   @@index([spotifyId])
+}
+
+
+model RequestLog {
+  id                String       @id @default(cuid())
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  requestFrom      User?        @relation("requestFrom",fields: [requestFromId], references: [id])
+  requestTo         User?        @relation("requestTo",fields: [requestToId], references: [id])
+  requestFromId     String
+  requestToId     String
+  status           String
+  
+  @@index([requestToId])
+  @@unique([requestFromId, requestToId])
+}
+
+model Friends{
+  id                String       @id @default(cuid())
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  followersId         String
+  followingId        String
+  followers       User?        @relation("followers",fields: [followersId], references: [id])
+  following       User?        @relation("following",fields: [followingId], references: [id])
+
+  @@unique([followersId, followingId])
 }

@@ -13,6 +13,7 @@ const Search = () => {
   const { data: search, isLoading } = api.spotify.search.useQuery({
     q,
   });
+
   return (
     <View className=" flex-1 bg-black p-4">
       <View className="flex w-full flex-row items-center rounded-full  bg-gray-800">

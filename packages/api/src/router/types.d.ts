@@ -80,6 +80,15 @@ export interface PlaylistResponse {
   previous: null | string;
   total: number;
 }
+export interface AlbumResponse {
+  href: string;
+  items: Album[];
+  limit: number;
+  next: null | string;
+  offset: number;
+  previous: null | string;
+  total: number;
+}
 //_______________________________________
 // Spotify Types
 export interface Playlist {
