@@ -35,7 +35,7 @@ model User {
   updatedAt         DateTime     @updatedAt
 
 
-  @@index([spotifyId])
+  @@index([spotifyId,id])
 }
 
 

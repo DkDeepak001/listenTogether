@@ -22,7 +22,7 @@ const RootLayout = () => {
               name="friends/add"
               options={{
                 headerShown: true,
-                title: "Search",
+                title: "",
                 headerStyle: {
                   backgroundColor: "black",
                 },

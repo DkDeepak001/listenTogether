@@ -25,12 +25,16 @@ const authUrl = `https://accounts.spotify.com/authorize?client_id=${clientId}&re
 
 const SpotifyLogin = () => {
   const router = useRouter();
-  const [counter, setCounter] = useState(0);
   const [codeProcessed, setCodeProcessed] = useState(false); // Add state variable
 
   const { mutateAsync: createUser } = api.user.create.useMutation({
     onSuccess: async (variable) => {
+      console.log(variable, "variable");
       await AsyncStorage.setItem("user_id", variable?.id ?? "");
+      console.log(await AsyncStorage.getItem("access_token"), "access_token");
+      console.log(await AsyncStorage.getItem("refresh_token"), "refresh_token");
+      console.log(await AsyncStorage.getItem("user_id"), "user_id");
+
       router.push("/tabbar/home");
     },
   });
@@ -41,22 +45,18 @@ const SpotifyLogin = () => {
       const { url } = event;
 
       if (!codeProcessed && url && url.startsWith(redirect_url)) {
-        console.log(counter, "counter");
-        setCounter(counter + 1);
         setCodeProcessed(true);
         const code = url?.match(/code=([^&]+)/)[1];
         if (!code) return;
         const data = await getToken({ code });
+        console.log(data, "data");
 
-        const refreshToken = data?.refresh_token ?? "";
-        const accessToken = data?.access_token ?? "";
-
-        await AsyncStorage.setItem("refresh_token", refreshToken);
-        await AsyncStorage.setItem("access_token", accessToken);
+        await AsyncStorage.setItem("refresh_token", data?.refresh_token ?? "");
+        await AsyncStorage.setItem("access_token", data?.access_token ?? "");
 
         await createUser({
-          accessToken: accessToken,
-          refreshToken: refreshToken,
+          accessToken: data.access_token,
+          refreshToken: data?.refresh_token,
         });
       }
     } catch (error) {

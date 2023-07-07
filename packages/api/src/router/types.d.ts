@@ -43,6 +43,20 @@ export interface Owner {
   display_name: string | null;
 }
 
+export interface User {
+  country: string;
+  display_name: string;
+  email: string;
+  explicit_content: ExplicitContent;
+  external_urls: ExternalUrls;
+  followers: Follower;
+  href: string;
+  id: string;
+  images: Image[];
+  product: string;
+  type: string;
+  uri: string;
+}
 //_______________________________________
 // Spotify API Response Types
 export type TokenResponse = {
@@ -50,6 +64,7 @@ export type TokenResponse = {
   token_type: string;
   expires_in: number;
   scope: string;
+  refresh_token: string;
 };
 
 export interface TopArtistsResponse {

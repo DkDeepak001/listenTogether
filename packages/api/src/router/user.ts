@@ -3,7 +3,7 @@ import { z } from "zod";
 import { type User } from "@acme/db";
 
 import { createTRPCRouter, publicProcedure } from "../trpc";
-import { type AccessTokenInfo, type TokenResponse } from "./types";
+import { type TokenResponse } from "./types";
 
 const redirect_url = "https://listen-together-nextjs.vercel.app/api/spotify";
 
@@ -32,8 +32,8 @@ export const userRouter = createTRPCRouter({
         }&redirect_uri=${encodeURIComponent(redirect_url)}`,
       })
         .then((response) => response.json())
-        .then((data): Promise<AccessTokenInfo> => {
-          return data as Promise<AccessTokenInfo>;
+        .then((data): Promise<TokenResponse> => {
+          return data as Promise<TokenResponse>;
         })
         .catch((error) => {
           console.log(error, "error from getAccessToken");
@@ -90,7 +90,7 @@ export const userRouter = createTRPCRouter({
             return await ctx.prisma.user.create({
               data: {
                 country: data.country,
-                display_name: data.display_name,
+                display_name: data.display_name.toLowerCase(),
                 email: data.email,
                 refreshToken: input.refreshToken,
                 href: data.href,

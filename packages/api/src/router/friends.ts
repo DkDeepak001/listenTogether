@@ -6,7 +6,7 @@ export const friendsRouter = createTRPCRouter({
   searchFriend: protectedProcedure
     .input(
       z.object({
-        username: z.string(),
+        username: z.string().toLowerCase(),
       }),
     )
     .query(async ({ ctx, input }) => {

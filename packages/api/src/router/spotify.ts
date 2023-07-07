@@ -76,6 +76,7 @@ export const spotifyRouter = createTRPCRouter({
         console.log(err, "err from spotify router");
       });
   }),
+
   search: protectedProcedure
     .input(
       z.object({

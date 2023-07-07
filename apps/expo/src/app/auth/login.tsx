@@ -1,7 +1,6 @@
 import React from "react";
-import { Linking, Pressable, Text } from "react-native";
+import { Pressable, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { WebView } from "react-native-webview";
 import { useRouter } from "expo-router";
 
 const Login = () => {
