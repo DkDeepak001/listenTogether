@@ -11,6 +11,8 @@ const Notification = () => {
 
   const { mutateAsync: rejectFriend } = api.friend.rejectFriend.useMutation();
 
+  const { mutateAsync: followBack } = api.friend.addFriend.useMutation();
+
   const handleAcceptFriend = async (id: string) => {
     try {
       await acceptFriend({ friendId: id });
@@ -22,6 +24,14 @@ const Notification = () => {
   const handleRejectFriend = async (id: string) => {
     try {
       await rejectFriend({ friendId: id });
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const handleFollowBack = async (id: string) => {
+    try {
+      await followBack({ friendId: id });
     } catch (e) {
       console.log(e);
     }
@@ -49,10 +59,14 @@ const Notification = () => {
               <Pressable
                 className="rounded-lg bg-blue-800 px-4 py-2"
                 onPress={() =>
-                  void handleAcceptFriend(item?.requestFrom?.id ?? "")
+                  item.status === "pending"
+                    ? void handleAcceptFriend(item?.requestFrom?.id ?? "")
+                    : void handleFollowBack(item?.requestFrom?.id ?? "")
                 }
               >
-                <Text className="font-xs font-bold text-white">Accept</Text>
+                <Text className="font-xs font-bold text-white">
+                  {item.status === "pending" ? `Accept` : `follow back`}
+                </Text>
               </Pressable>
               <Pressable
                 className="rounded-lg bg-white px-4 py-2"
@@ -67,7 +81,9 @@ const Notification = () => {
         )}
         keyExtractor={(item, index) => index.toString()}
         ListEmptyComponent={() => (
-          <Text className="font-xs text-white">No notification</Text>
+          <Text className="font-xs text-center text-white">
+            No notification
+          </Text>
         )}
       />
     </View>
