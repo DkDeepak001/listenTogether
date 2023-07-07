@@ -2,7 +2,7 @@ import { z } from "zod";
 
 import { type User } from "@acme/db";
 
-import { createTRPCRouter, publicProcedure } from "../trpc";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { type TokenResponse } from "./types";
 
 const redirect_url = "https://listen-together-nextjs.vercel.app/api/spotify";
@@ -106,4 +106,23 @@ export const userRouter = createTRPCRouter({
         console.log("error", error);
       }
     }),
+  notification: protectedProcedure.query(async ({ ctx }) => {
+    return await ctx.prisma.requestLog.findMany({
+      where: {
+        requestTo: {
+          id: ctx.userId,
+        },
+      },
+      select: {
+        requestFrom: {
+          select: {
+            display_name: true,
+            images: true,
+            spotifyId: true,
+            id: true,
+          },
+        },
+      },
+    });
+  }),
 });

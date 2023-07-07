@@ -29,6 +29,18 @@ const RootLayout = () => {
                 headerTintColor: "#fff",
               }}
             />
+            <Stack.Screen
+              name="notification/notification"
+              options={{
+                animation: "slide_from_right",
+                headerShown: true,
+                title: "Notification",
+                headerStyle: {
+                  backgroundColor: "black",
+                },
+                headerTintColor: "#fff",
+              }}
+            />
           </Stack>
           <StatusBar backgroundColor="black" style="dark" />
         </View>

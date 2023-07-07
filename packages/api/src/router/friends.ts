@@ -92,4 +92,41 @@ export const friendsRouter = createTRPCRouter({
         console.log(e);
       }
     }),
+  acceptFriend: protectedProcedure
+    .input(
+      z.object({
+        friendId: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      try {
+        return await ctx.prisma.$transaction([
+          ctx.prisma.requestLog.updateMany({
+            where: {
+              requestFromId: input.friendId,
+              requestToId: ctx.userId,
+            },
+            data: {
+              status: "accepted",
+            },
+          }),
+          ctx.prisma.friends.create({
+            data: {
+              followers: {
+                connect: {
+                  id: ctx.userId,
+                },
+              },
+              following: {
+                connect: {
+                  id: input.friendId,
+                },
+              },
+            },
+          }),
+        ]);
+      } catch (e) {
+        console.log(e);
+      }
+    }),
 });
