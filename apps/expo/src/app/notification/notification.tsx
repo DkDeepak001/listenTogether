@@ -9,9 +9,19 @@ const Notification = () => {
 
   const { mutateAsync: acceptFriend } = api.friend.acceptFriend.useMutation();
 
+  const { mutateAsync: rejectFriend } = api.friend.rejectFriend.useMutation();
+
   const handleAcceptFriend = async (id: string) => {
     try {
       await acceptFriend({ friendId: id });
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const handleRejectFriend = async (id: string) => {
+    try {
+      await rejectFriend({ friendId: id });
     } catch (e) {
       console.log(e);
     }
@@ -35,14 +45,24 @@ const Notification = () => {
                 {item.requestFrom?.display_name}
               </Text>
             </View>
-            <Pressable
-              className="rounded-lg bg-blue-800 px-4 py-2"
-              onPress={() =>
-                void handleAcceptFriend(item?.requestFrom?.id ?? "")
-              }
-            >
-              <Text className="font-xs font-bold text-white">Accept</Text>
-            </Pressable>
+            <View className="flex-row items-center gap-x-2">
+              <Pressable
+                className="rounded-lg bg-blue-800 px-4 py-2"
+                onPress={() =>
+                  void handleAcceptFriend(item?.requestFrom?.id ?? "")
+                }
+              >
+                <Text className="font-xs font-bold text-white">Accept</Text>
+              </Pressable>
+              <Pressable
+                className="rounded-lg bg-white px-4 py-2"
+                onPress={() =>
+                  void handleRejectFriend(item?.requestFrom?.id ?? "")
+                }
+              >
+                <Text className="font-xs font-bold text-black">X</Text>
+              </Pressable>
+            </View>
           </View>
         )}
         keyExtractor={(item, index) => index.toString()}

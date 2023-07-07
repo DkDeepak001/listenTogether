@@ -129,4 +129,22 @@ export const friendsRouter = createTRPCRouter({
         console.log(e);
       }
     }),
+  rejectFriend: protectedProcedure
+    .input(
+      z.object({
+        friendId: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      try {
+        return await ctx.prisma.requestLog.deleteMany({
+          where: {
+            requestFromId: input.friendId,
+            requestToId: ctx.userId,
+          },
+        });
+      } catch (e) {
+        console.log(e);
+      }
+    }),
 });
