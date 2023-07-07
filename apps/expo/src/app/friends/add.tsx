@@ -10,9 +10,78 @@ const Add = () => {
   const { data: search } = api.friend.searchFriend.useQuery({
     username: q,
   });
-  const { mutateAsync: addFriend } = api.friend.addFriend.useMutation();
+  console.log(search);
+  const context = api.useContext();
+  const { mutateAsync: addFriend } = api.friend.addFriend.useMutation({
+    onMutate: async (variable) => {
+      await context.friend.searchFriend.cancel();
+      const previousFriends = context.friend.searchFriend.getData({
+        username: q,
+      });
+      context.friend.searchFriend.setData({ username: q }, (old) => {
+        if (!old) return;
+        const user = old?.find((u) => u.id === variable.friendId);
+        if (!user) return;
+
+        return old.map((u) => {
+          if (u?.id === variable.friendId) {
+            return { ...u, isReqestSent: true };
+          }
+          return u;
+        });
+      });
+      return { previousFriends };
+    },
+
+    onError: (err, _, ctx) => {
+      if (ctx) {
+        context.friend.searchFriend.setData(
+          { username: q },
+          ctx?.previousFriends,
+        );
+      }
+      console.log(err);
+    },
+    onSettled: () => {
+      void context.friend.searchFriend.cancel();
+      void context.friend.searchFriend.invalidate({ username: q });
+    },
+  });
   const { mutateAsync: cancelFriend } =
-    api.friend.cancelFriendRequest.useMutation();
+    api.friend.cancelFriendRequest.useMutation({
+      onMutate: async (variable) => {
+        await context.friend.searchFriend.cancel();
+        const previousFriends = context.friend.searchFriend.getData({
+          username: q,
+        });
+        context.friend.searchFriend.setData({ username: q }, (old) => {
+          if (!old) return;
+          const user = old?.find((u) => u.id === variable.friendId);
+          if (!user) return;
+
+          return old.map((u) => {
+            if (u?.id === variable.friendId) {
+              return { ...u, isReqestSent: false };
+            }
+            return u;
+          });
+        });
+        return { previousFriends };
+      },
+      onError: (err, _, ctx) => {
+        if (ctx) {
+          context.friend.searchFriend.setData(
+            { username: q },
+            ctx?.previousFriends,
+          );
+        }
+        console.log(err);
+      },
+      onSettled: () => {
+        void context.friend.searchFriend.cancel();
+        void context.friend.searchFriend.invalidate({ username: q });
+      },
+    });
 
   const handleFriendRequest = async (id: string) => {
     try {
