@@ -1,19 +1,121 @@
-import React from "react";
+import React, { useState } from "react";
 import { FlatList, Pressable, Text, View } from "react-native";
 import { Image } from "expo-image";
 
 import { api } from "~/utils/api";
 
 const Notification = () => {
+  const [selectedId, setSelectedId] = useState<string>("");
   const { data: notification } = api.user.notification.useQuery();
 
-  const { mutateAsync: acceptFriend } = api.friend.acceptFriend.useMutation();
+  const context = api.useContext();
 
-  const { mutateAsync: rejectFriend } = api.friend.rejectFriend.useMutation();
+  const { mutateAsync: acceptFriend } = api.friend.acceptFriend.useMutation({
+    onMutate: async (variable) => {
+      await context.user.notification.cancel();
+      await context.friend.searchFriend.cancel();
 
-  const { mutateAsync: followBack } = api.friend.addFriend.useMutation();
+      const prev = context.user.notification.getData();
 
-  const handleAcceptFriend = async (id: string) => {
+      const self = context.spotify.self.getData();
+      const hasFollowing = self?.following?.some(
+        (u) => u?.followersId === variable?.friendId,
+      );
+
+      context.user.notification.setData(void {}, (old) => {
+        if (!old) return;
+        const notification = old?.find((u) => u.id === selectedId);
+        if (!notification) return;
+
+        return old.map((u) => {
+          if (u?.id === selectedId) {
+            return {
+              ...u,
+              status: hasFollowing ? "following" : "not following",
+            };
+          }
+          return u;
+        });
+      });
+      return { prev };
+    },
+    onError: (err, _, ctx) => {
+      if (ctx) {
+        context.user.notification.setData(void {}, ctx?.prev);
+      }
+      console.log(err);
+    },
+    onSettled: () => {
+      void context.user.notification.cancel();
+      void context.user.notification.invalidate();
+      void context.spotify.self.invalidate();
+    },
+  });
+
+  const { mutateAsync: rejectFriend } = api.friend.rejectFriend.useMutation({
+    onMutate: async () => {
+      await context.user.notification.cancel();
+      await context.friend.searchFriend.cancel();
+
+      const prev = context.user.notification.getData();
+
+      context.user.notification.setData(void {}, (old) => {
+        if (!old) return;
+        const notification = old?.find((u) => u.id === selectedId);
+        if (!notification) return;
+
+        return old.filter((u) => u?.id !== selectedId);
+      });
+      return { prev };
+    },
+    onError: (err, _, ctx) => {
+      if (ctx) {
+        context.user.notification.setData(void {}, ctx?.prev);
+      }
+      console.log(err);
+    },
+    onSettled: () => {
+      void context.user.notification.cancel();
+      void context.user.notification.invalidate();
+    },
+  });
+
+  const { mutateAsync: followBack } = api.friend.addFriend.useMutation({
+    onMutate: async () => {
+      await context.user.notification.cancel();
+      await context.friend.searchFriend.cancel();
+
+      const prev = context.user.notification.getData();
+
+      context.user.notification.setData(void {}, (old) => {
+        if (!old) return;
+        const notification = old?.find((u) => u.id === selectedId);
+        if (!notification) return;
+
+        return old.map((u) => {
+          if (u?.id === selectedId) {
+            return { ...u, status: "requested" };
+          }
+          return u;
+        });
+      });
+      return { prev };
+    },
+    onError: (err, _, ctx) => {
+      if (ctx) {
+        context.user.notification.setData(void {}, ctx?.prev);
+      }
+      console.log(err);
+    },
+    onSettled: () => {
+      void context.user.notification.cancel();
+      void context.user.notification.invalidate();
+      void context.spotify.self.invalidate();
+    },
+  });
+
+  const handleAcceptFriend = async (id: string, dataId: string) => {
+    setSelectedId(dataId);
     try {
       await acceptFriend({ friendId: id });
     } catch (e) {
@@ -21,7 +123,8 @@ const Notification = () => {
     }
   };
 
-  const handleRejectFriend = async (id: string) => {
+  const handleRejectFriend = async (id: string, dataId: string) => {
+    setSelectedId(dataId);
     try {
       await rejectFriend({ friendId: id });
     } catch (e) {
@@ -29,7 +132,9 @@ const Notification = () => {
     }
   };
 
-  const handleFollowBack = async (id: string) => {
+  const handleFollowBack = async (id: string, dataId: string) => {
+    setSelectedId(dataId);
+
     try {
       await followBack({ friendId: id });
     } catch (e) {
@@ -60,22 +165,41 @@ const Notification = () => {
                 className="rounded-lg bg-blue-800 px-4 py-2"
                 onPress={() =>
                   item.status === "pending"
-                    ? void handleAcceptFriend(item?.requestFrom?.id ?? "")
-                    : void handleFollowBack(item?.requestFrom?.id ?? "")
+                    ? void handleAcceptFriend(
+                        item?.requestFrom?.id ?? "",
+                        item?.id ?? "",
+                      )
+                    : item.status === "not following"
+                    ? void handleFollowBack(
+                        item?.requestFrom?.id ?? "",
+                        item?.id ?? "",
+                      )
+                    : void handleRejectFriend(
+                        item?.requestFrom?.id ?? "",
+                        item?.id ?? "",
+                      )
                 }
               >
                 <Text className="font-xs font-bold text-white">
-                  {item.status === "pending" ? `Accept` : `follow back`}
+                  {item.status === "pending" && `Accept`}
+                  {item.status === "following" && `un follow`}
+                  {item.status === "not following" && `follow back`}
+                  {item.status === "requested" && `Cancel`}
                 </Text>
               </Pressable>
-              <Pressable
-                className="rounded-lg bg-white px-4 py-2"
-                onPress={() =>
-                  void handleRejectFriend(item?.requestFrom?.id ?? "")
-                }
-              >
-                <Text className="font-xs font-bold text-black">X</Text>
-              </Pressable>
+              {item.status === "pending" && (
+                <Pressable
+                  className="rounded-lg bg-white px-4 py-2"
+                  onPress={() =>
+                    void handleRejectFriend(
+                      item?.requestFrom?.id ?? "",
+                      item?.id ?? "",
+                    )
+                  }
+                >
+                  <Text className="font-xs font-bold text-black">X</Text>
+                </Pressable>
+              )}
             </View>
           </View>
         )}

@@ -118,18 +118,20 @@ const Add = () => {
                 {item.display_name}
               </Text>
             </View>
-            <Pressable
-              className="flex flex-row items-center justify-center rounded-xl bg-blue-600 px-4 py-2"
-              onPress={() => {
-                item.isReqestSent
-                  ? void handleCancelFriendRequest(item.id)
-                  : void handleFriendRequest(item.id);
-              }}
-            >
-              <Text className=" text-base font-semibold text-white">
-                {item.isReqestSent ? "Cancel" : "Add"}
-              </Text>
-            </Pressable>
+            {!item.isFollowing && (
+              <Pressable
+                className="flex flex-row items-center justify-center rounded-xl bg-blue-600 px-4 py-2"
+                onPress={() => {
+                  item.isReqestSent
+                    ? void handleCancelFriendRequest(item.id)
+                    : void handleFriendRequest(item.id);
+                }}
+              >
+                <Text className=" text-base font-semibold text-white">
+                  {item.isReqestSent ? "Cancel" : "Add"}
+                </Text>
+              </Pressable>
+            )}
           </View>
         )}
         keyExtractor={(item) => item.id}

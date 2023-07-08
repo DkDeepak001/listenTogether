@@ -114,6 +114,7 @@ export const userRouter = createTRPCRouter({
         },
       },
       select: {
+        id: true,
         status: true,
         requestFrom: {
           select: {

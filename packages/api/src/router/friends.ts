@@ -25,8 +25,14 @@ export const friendsRouter = createTRPCRouter({
           images: true,
           href: true,
           spotifyId: true,
+          followers: {
+            select: {
+              followingId: true,
+            },
+          },
         },
       });
+      console.log(user);
       const hasRequest = await ctx.prisma.requestLog.findMany({
         where: {
           requestFromId: ctx.userId,
@@ -36,14 +42,19 @@ export const friendsRouter = createTRPCRouter({
         },
       });
 
+      console.log(hasRequest);
       const result = user.map((user) => {
         return {
           ...user,
           isReqestSent: hasRequest.some((request) => {
             return request.requestToId === user.id;
           }),
+          isFollowing: user.followers.some((follower) => {
+            return follower.followingId === ctx.userId;
+          }),
         };
       });
+      console.log(result);
       return result;
     }),
 
@@ -100,6 +111,23 @@ export const friendsRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       try {
+        const user = await ctx.prisma.user.findUnique({
+          where: {
+            id: ctx.userId,
+          },
+          select: {
+            id: true,
+            following: {
+              select: {
+                followersId: true,
+              },
+            },
+          },
+        });
+        const isFollowing = user?.following.some((following) => {
+          return following.followersId === input.friendId;
+        });
+
         return await ctx.prisma.$transaction([
           ctx.prisma.requestLog.updateMany({
             where: {
@@ -107,7 +135,7 @@ export const friendsRouter = createTRPCRouter({
               requestToId: ctx.userId,
             },
             data: {
-              status: "accepted",
+              status: isFollowing ? "following" : "not following",
             },
           }),
           ctx.prisma.friends.create({

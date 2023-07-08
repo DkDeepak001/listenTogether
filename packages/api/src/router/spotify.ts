@@ -15,6 +15,18 @@ export const spotifyRouter = createTRPCRouter({
         where: {
           id: ctx.userId,
         },
+        select: {
+          id: true,
+          display_name: true,
+          images: true,
+          spotifyId: true,
+          refreshToken: true,
+          following: {
+            select: {
+              followersId: true,
+            },
+          },
+        },
       });
     } catch (error) {
       console.log("error", error);

@@ -12,19 +12,26 @@ type TopType = "tracks" | "artists";
 const Home = () => {
   const router = useRouter();
   const [type, setType] = useState<TopType>("tracks");
-  const { authToken, updateToken } = useAuthToken();
+  const { updateToken } = useAuthToken();
   const { data: user, isLoading } = api.spotify.self.useQuery();
 
-  const { data: topTracks } = api.spotify.topTracks.useQuery();
-  const { data: topArtists } = api.spotify.topArtists.useQuery();
+  const { data: topTracks, refetch: refetchTopTracks } =
+    api.spotify.topTracks.useQuery();
+  const { data: topArtists, refetch: refetchTopArtist } =
+    api.spotify.topArtists.useQuery();
 
   if (isLoading || !user) return <Text>Loading...</Text>;
 
   // TODO add types to error
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   if (topTracks?.error || topArtists?.error) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     if (topTracks?.error?.status === 401) {
-      updateToken();
-      // refetch();
+      void updateToken();
+      void refetchTopArtist();
+      void refetchTopTracks();
     }
   }
 
