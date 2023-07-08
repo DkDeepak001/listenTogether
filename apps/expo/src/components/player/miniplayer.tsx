@@ -12,15 +12,15 @@ type MiniplayerProps = {
 
 const Miniplayer = ({ player }: MiniplayerProps) => {
   return (
-    <View className=" flex flex-row  items-center rounded-t-3xl bg-white/20 px-5 py-3 backdrop-blur-sm">
+    <View className=" w-ffull flex  flex-row items-center rounded-t-3xl bg-white/20 px-5 py-3 backdrop-blur-sm">
       <Image
         source={{ uri: player?.item?.album?.images[0]?.url }}
         className="mr-2 h-10 w-10 rounded-2xl"
         alt={player?.item?.name}
       />
-      <View className="flex flex-col gap-y-1">
+      <View className="flex w-full flex-col gap-y-1">
         <Text
-          className="font-lg w-3/5 text-white"
+          className="font-lg w-3/5  text-white"
           numberOfLines={1}
           ellipsizeMode="tail"
         >

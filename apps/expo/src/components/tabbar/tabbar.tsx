@@ -28,6 +28,7 @@ const AppTabBar = ({ state, player }: AppTabBarProps) => {
   return (
     <SafeAreaView className="bg-black">
       {player?.item && <Miniplayer player={player} />}
+
       <View className="flex-row items-center justify-between bg-black/95 px-8 py-3">
         <Pressable
           onPress={() => void handlePress("/tabbar/home")}
