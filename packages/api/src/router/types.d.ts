@@ -57,6 +57,23 @@ export interface User {
   type: string;
   uri: string;
 }
+export interface Device {
+  id: string;
+  is_active: boolean;
+  is_private_session: boolean;
+  is_restricted: boolean;
+  name: string;
+  type: string;
+  volume_percent: number;
+}
+
+export interface Context {
+  external_urls: ExternalUrls;
+  href: string;
+  type: string;
+  uri: string;
+}
+
 //_______________________________________
 // Spotify API Response Types
 export type TokenResponse = {
@@ -104,6 +121,26 @@ export interface AlbumResponse {
   previous: null | string;
   total: number;
 }
+export interface CurrentlyPlaying {
+  album: Album;
+  artists: Artist[];
+  available_markets: string[];
+  disc_number: number;
+  duration_ms: number;
+  explicit: boolean;
+  external_ids: { isrc: string };
+  external_urls: ExternalUrls;
+  href: string;
+  id: string;
+  is_local: boolean;
+  name: string;
+  popularity: number;
+  preview_url: string | null;
+  track_number: number;
+  type: string;
+  uri: string;
+}
+
 //_______________________________________
 // Spotify Types
 export interface Playlist {
@@ -170,4 +207,19 @@ export interface Artist {
   popularity: number;
   type: "artist";
   uri: string;
+}
+
+export interface CurrentlyPlayingResponse {
+  device: Device;
+  shuffle_state: boolean;
+  repeat_state: string;
+  timestamp: number;
+  context: Context;
+  progress_ms: number;
+  item: CurrentlyPlaying;
+  currently_playing_type: string;
+  actions: {
+    disallows: { resuming: boolean };
+  };
+  is_playing: boolean;
 }

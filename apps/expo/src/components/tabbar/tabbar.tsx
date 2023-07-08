@@ -1,15 +1,23 @@
-import { Pressable, SafeAreaView, View } from "react-native";
+import { Pressable, SafeAreaView, Text, View } from "react-native";
 // import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { type BottomTabBarProps } from "@react-navigation/bottom-tabs";
 
+import { type api } from "~/utils/api";
 import friends from "../../../assets/tabbar/friends.svg";
 import home from "../../../assets/tabbar/home.svg";
 import playlist from "../../../assets/tabbar/playlist.svg";
 import search from "../../../assets/tabbar/search.svg";
+import Miniplayer from "../player/miniplayer";
 
-const AppTabBar = ({ state }: BottomTabBarProps) => {
+type AppTabBarProps = BottomTabBarProps & {
+  player: ReturnType<
+    ReturnType<typeof api.useContext>["player"]["getPlayBackState"]["getData"]
+  >;
+};
+
+const AppTabBar = ({ state, player }: AppTabBarProps) => {
   const router = useRouter();
 
   const handlePress = (url: string) => {
@@ -18,7 +26,8 @@ const AppTabBar = ({ state }: BottomTabBarProps) => {
   };
 
   return (
-    <SafeAreaView className="bg-white">
+    <SafeAreaView className="bg-black">
+      {player?.item && <Miniplayer player={player} />}
       <View className="flex-row items-center justify-between bg-black/95 px-8 py-3">
         <Pressable
           onPress={() => void handlePress("/tabbar/home")}
