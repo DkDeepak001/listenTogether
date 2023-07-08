@@ -32,7 +32,6 @@ export const friendsRouter = createTRPCRouter({
           },
         },
       });
-      console.log(user);
       const hasRequest = await ctx.prisma.requestLog.findMany({
         where: {
           requestFromId: ctx.userId,
@@ -42,7 +41,6 @@ export const friendsRouter = createTRPCRouter({
         },
       });
 
-      console.log(hasRequest);
       const result = user.map((user) => {
         return {
           ...user,
@@ -54,7 +52,6 @@ export const friendsRouter = createTRPCRouter({
           }),
         };
       });
-      console.log(result);
       return result;
     }),
 
@@ -169,6 +166,45 @@ export const friendsRouter = createTRPCRouter({
           where: {
             requestFromId: input.friendId,
             requestToId: ctx.userId,
+          },
+        });
+      } catch (e) {
+        console.log(e);
+      }
+    }),
+  following: protectedProcedure
+    .input(
+      z.object({
+        q: z.string().toLowerCase().optional(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      try {
+        return await ctx.prisma.user.findUnique({
+          where: {
+            id: ctx.userId,
+          },
+          select: {
+            following: {
+              where: {
+                followers: {
+                  display_name: {
+                    contains: input.q ?? undefined,
+                  },
+                },
+              },
+              select: {
+                followers: {
+                  select: {
+                    id: true,
+                    display_name: true,
+                    images: true,
+                    href: true,
+                    spotifyId: true,
+                  },
+                },
+              },
+            },
           },
         });
       } catch (e) {
