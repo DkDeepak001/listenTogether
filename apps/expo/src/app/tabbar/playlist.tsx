@@ -24,7 +24,7 @@ const Playlist = () => {
         renderItem={({ item }) => (
           <View className="my-3 flex flex-row">
             <Image
-              className="h-52 w-full rounded-lg opacity-50"
+              className="h-48 w-full rounded-lg opacity-50"
               source={{ uri: item.images[0]?.url ?? "" }}
               alt={item.name}
             />

@@ -8,11 +8,21 @@ const usePlayer = () => {
   const { data: player, refetch } = api.player.getPlayBackState.useQuery();
 
   useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+    if (player?.currently_playing_type === "ad") {
+      timeoutId = setTimeout(() => {
+        void refetch();
+      }, 3000);
+    }
     if (!player || !player.item) return;
 
-    setTimeout(() => {
+    timeoutId = setTimeout(() => {
       void refetch();
-    }, Number(player.item?.duration_ms / 100));
+    }, 1000);
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
   }, [player]);
 
   return { player } as {

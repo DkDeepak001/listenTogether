@@ -21,7 +21,7 @@ const SearchBar = ({
     >
       <Image
         source={require("../../../assets/tabbar/search.svg")}
-        className={"ml-2 h-8 w-10"}
+        className={"ml-2 h-7 w-10"}
         contentFit="contain"
         alt="search"
       />

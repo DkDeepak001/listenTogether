@@ -1,5 +1,5 @@
 import React from "react";
-import { Text, View } from "react-native";
+import { Pressable, Text, View, type PressableProps } from "react-native";
 import { Image } from "expo-image";
 
 import { type api } from "~/utils/api";
@@ -8,11 +8,15 @@ type MiniplayerProps = {
   player: ReturnType<
     ReturnType<typeof api.useContext>["player"]["getPlayBackState"]["getData"]
   >;
+  pressableProps: PressableProps;
 };
 
-const Miniplayer = ({ player }: MiniplayerProps) => {
+const Miniplayer = ({ player, pressableProps }: MiniplayerProps) => {
   return (
-    <View className=" w-ffull flex  flex-row items-center rounded-t-3xl bg-white/20 px-5 py-3 backdrop-blur-sm">
+    <Pressable
+      className=" w-ffull flex  flex-row items-center rounded-t-3xl bg-white/20 px-5 py-3 backdrop-blur-sm"
+      {...pressableProps}
+    >
       <Image
         source={{ uri: player?.item?.album?.images[0]?.url }}
         className="mr-2 h-10 w-10 rounded-2xl"
@@ -24,7 +28,7 @@ const Miniplayer = ({ player }: MiniplayerProps) => {
           numberOfLines={1}
           ellipsizeMode="tail"
         >
-          {player?.item?.album?.name}
+          {player?.item?.name}
         </Text>
         <Text
           className="font-lg text-white"
@@ -34,7 +38,7 @@ const Miniplayer = ({ player }: MiniplayerProps) => {
           {player?.item?.album?.artists[0]?.name}
         </Text>
       </View>
-    </View>
+    </Pressable>
   );
 };
 

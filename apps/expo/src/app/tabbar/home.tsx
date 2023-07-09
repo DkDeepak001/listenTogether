@@ -82,7 +82,7 @@ const Home = () => {
             <View className="my-2 flex flex-row gap-x-5">
               <Image
                 source={{ uri: item.album.images[0]?.url }}
-                className="h-20 w-20 rounded-2xl"
+                className="h-16 w-16 rounded-2xl"
                 alt={item.name}
               />
               <View className="flex flex-col justify-center">

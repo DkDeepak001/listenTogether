@@ -13,6 +13,7 @@ const RootLayout = () => {
       <SafeAreaProvider>
         <View className="flex-1">
           <AuthInitialize />
+          <StatusBar backgroundColor="#000" style="light" />
           <Stack
             screenOptions={{
               headerShown: false,
@@ -41,8 +42,14 @@ const RootLayout = () => {
                 headerTintColor: "#fff",
               }}
             />
+            <Stack.Screen
+              name="player/full"
+              options={{
+                animation: "fade_from_bottom",
+                animationDuration: 1000,
+              }}
+            />
           </Stack>
-          <StatusBar backgroundColor="black" style="dark" />
         </View>
       </SafeAreaProvider>
     </TRPCProvider>
