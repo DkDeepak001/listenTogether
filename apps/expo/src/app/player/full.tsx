@@ -4,6 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 
+import WaveForm from "~/components/player/waveForm";
 import usePlayer from "~/hooks/usePlayer";
 import downArrow from "../../../assets/player/downArrow.svg";
 import next from "../../../assets/player/next.svg";
@@ -50,6 +51,7 @@ const FullPlayer = () => {
           </Pressable>
         </View>
         <View className=" mt-10 h-1 w-10/12 rounded-lg bg-gray-600" />
+        <WaveForm />
       </View>
     </SafeAreaView>
   );
