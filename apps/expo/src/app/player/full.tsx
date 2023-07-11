@@ -3,7 +3,6 @@ import { Pressable, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
-import Slider from "@react-native-community/slider";
 
 import usePlayer from "~/hooks/usePlayer";
 import downArrow from "../../../assets/player/downArrow.svg";
@@ -12,8 +11,12 @@ import pause from "../../../assets/player/pause.svg";
 
 const FullPlayer = () => {
   const router = useRouter();
-  const { player, playPercent } = usePlayer();
+  const { player, playPercent, formattedEndduration, formattedStartingTime } =
+    usePlayer();
   // const fill = (player?.progress_ms / player?.item?.duration_ms) * 100;
+  //two decimal places
+
+  console.log(formattedStartingTime);
 
   return (
     <SafeAreaView className="flex-1 bg-black pt-5">
@@ -52,13 +55,15 @@ const FullPlayer = () => {
             <Image source={next} className="h-6 w-6 " alt="next" />
           </Pressable>
         </View>
-        <Slider
-          style={{ width: 200, height: 40 }}
-          minimumValue={0}
-          maximumValue={1}
-          minimumTrackTintColor="#FFFFFF"
-          maximumTrackTintColor="#000000"
-        />
+        <View className="mt-8 h-1 w-11/12 bg-gray-800">
+          <Text className=" absolute -top-5  text-xs text-white">
+            {formattedStartingTime}
+          </Text>
+          <View className="h-1 bg-white" style={{ width: `${playPercent}%` }} />
+          <Text className=" absolute -top-5 right-0 text-xs text-white">
+            {formattedEndduration ?? `0:00`}
+          </Text>
+        </View>
       </View>
     </SafeAreaView>
   );
