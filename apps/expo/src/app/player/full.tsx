@@ -51,7 +51,6 @@ const FullPlayer = () => {
           </Pressable>
         </View>
         <View className=" mt-10 h-1 w-10/12 rounded-lg bg-gray-600" />
-        <WaveForm />
       </View>
     </SafeAreaView>
   );
