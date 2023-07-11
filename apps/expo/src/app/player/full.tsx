@@ -3,8 +3,8 @@ import { Pressable, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
+import Slider from "@react-native-community/slider";
 
-import WaveForm from "~/components/player/waveForm";
 import usePlayer from "~/hooks/usePlayer";
 import downArrow from "../../../assets/player/downArrow.svg";
 import next from "../../../assets/player/next.svg";
@@ -12,7 +12,9 @@ import pause from "../../../assets/player/pause.svg";
 
 const FullPlayer = () => {
   const router = useRouter();
-  const { player } = usePlayer();
+  const { player, playPercent } = usePlayer();
+  // const fill = (player?.progress_ms / player?.item?.duration_ms) * 100;
+
   return (
     <SafeAreaView className="flex-1 bg-black pt-5">
       <Pressable onPress={() => router.back()}>
@@ -50,7 +52,13 @@ const FullPlayer = () => {
             <Image source={next} className="h-6 w-6 " alt="next" />
           </Pressable>
         </View>
-        <View className=" mt-10 h-1 w-10/12 rounded-lg bg-gray-600" />
+        <Slider
+          style={{ width: 200, height: 40 }}
+          minimumValue={0}
+          maximumValue={1}
+          minimumTrackTintColor="#FFFFFF"
+          maximumTrackTintColor="#000000"
+        />
       </View>
     </SafeAreaView>
   );

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import { type CurrentlyPlayingResponse } from "@acme/api/src/router/types";
 
@@ -6,6 +6,7 @@ import { api } from "~/utils/api";
 
 const usePlayer = () => {
   const { data: player, refetch } = api.player.getPlayBackState.useQuery();
+  const [playPercent, setPlayPercent] = useState<number>(0);
 
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
@@ -17,6 +18,9 @@ const usePlayer = () => {
     if (!player || !player.item) return;
 
     timeoutId = setTimeout(() => {
+      setPlayPercent(
+        Math.floor((player?.progress_ms / player?.item?.duration_ms) * 100),
+      );
       void refetch();
     }, 1000);
 
@@ -25,8 +29,11 @@ const usePlayer = () => {
     };
   }, [player]);
 
-  return { player } as {
+  console.log(playPercent, "playPercent=====================");
+
+  return { player, playPercent } as {
     player: CurrentlyPlayingResponse;
+    playPercent: number;
   };
 };
 
