@@ -26,8 +26,83 @@ export const playerRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      console.log("pauseSong=========================================");
       return await fetch(`https://api.spotify.com/v1/me/player/pause`, {
+        method: "PUT",
+        headers: {
+          Authorization: "Bearer " + ctx.accessToken,
+        },
+        body: JSON.stringify({
+          device_id: input.device_id,
+        }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          console.log(data, "data from pause router");
+          return data;
+        })
+        .catch((err) => {
+          console.log(err, "err from player router");
+        });
+    }),
+
+  nextSong: protectedProcedure
+    .input(
+      z.object({
+        device_id: z.string(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      return await fetch(`https://api.spotify.com/v1/me/player/next`, {
+        method: "POST",
+        headers: {
+          Authorization: "Bearer " + ctx.accessToken,
+        },
+        body: JSON.stringify({
+          device_id: input.device_id,
+        }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          console.log(data, "data from next router");
+          return data;
+        })
+        .catch((err) => {
+          console.log(err, "err from player router");
+        });
+    }),
+  prevSong: protectedProcedure
+    .input(
+      z.object({
+        device_id: z.string(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      return await fetch(`https://api.spotify.com/v1/me/player/previous`, {
+        method: "POST",
+        headers: {
+          Authorization: "Bearer " + ctx.accessToken,
+        },
+        body: JSON.stringify({
+          device_id: input.device_id,
+        }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          console.log(data, "data from prev router");
+          return data;
+        })
+        .catch((err) => {
+          console.log(err, "err from player router");
+        });
+    }),
+  playSong: protectedProcedure
+    .input(
+      z.object({
+        device_id: z.string(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      return await fetch(`https://api.spotify.com/v1/me/player/play`, {
         method: "PUT",
         headers: {
           Authorization: "Bearer " + ctx.accessToken,
