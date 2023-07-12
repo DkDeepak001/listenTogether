@@ -3,6 +3,7 @@ import { Pressable, Text, ToastAndroid, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
+import Slider from "@react-native-community/slider";
 
 import { api } from "~/utils/api";
 import usePlayer from "~/hooks/usePlayer";
@@ -22,11 +23,28 @@ const FullPlayer = () => {
   const { mutateAsync: playSong } = api.player.playSong.useMutation();
   const { mutateAsync: nextSong } = api.player.nextSong.useMutation();
   const { mutateAsync: prevSong } = api.player.prevSong.useMutation();
+  const { mutateAsync: seekSong } = api.player.seekSong.useMutation();
+
+  if (!Number(playPercent)) return;
 
   if (player.currently_playing_type === "ad") {
     ToastAndroid.show("Playing ads is not supported", ToastAndroid.SHORT);
     router.back();
   }
+
+  const handleSeekSong = async (value: number) => {
+    if (user?.product === "free")
+      ToastAndroid.show(
+        "You need to have a premium account to use this feature",
+        ToastAndroid.SHORT,
+      );
+    else {
+      await seekSong({
+        device_id: player.device.id,
+        position_ms: value * player.item.duration_ms,
+      });
+    }
+  };
 
   const handlePauseSong = async () => {
     if (user?.product === "free")
@@ -111,12 +129,21 @@ const FullPlayer = () => {
             <Image source={next} className="h-6 w-6 " alt="next" />
           </Pressable>
         </View>
-        <View className="mt-8 h-1 w-11/12 bg-gray-800">
-          <Text className=" absolute -top-5  text-xs text-white">
+        <View className="mt-8  w-11/12 ">
+          <Text className=" absolute -top-2 left-5  text-xs text-white">
             {formattedStartingTime}
           </Text>
-          <View className="h-1 bg-white" style={{ width: `${playPercent}%` }} />
-          <Text className=" absolute -top-5 right-0 text-xs text-white">
+          <Slider
+            style={{ width: "100%", height: 50 }}
+            minimumValue={0}
+            maximumValue={100}
+            value={playPercent}
+            onSlidingComplete={(value) => void handleSeekSong(value)}
+            minimumTrackTintColor="#FFFFFF"
+            maximumTrackTintColor="#FFFFFF"
+            thumbTintColor="#FFFFFF"
+          />
+          <Text className=" absolute -top-2  right-5 text-xs text-white">
             {formattedEndduration ?? `0:00`}
           </Text>
         </View>

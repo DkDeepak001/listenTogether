@@ -15,9 +15,6 @@ const usePlayer = () => {
     let timeoutId: NodeJS.Timeout;
 
     if (player?.currently_playing_type === "ad") {
-      timeoutId = setInterval(() => {
-        void refetch();
-      }, 3000);
       return;
     }
 
@@ -25,7 +22,7 @@ const usePlayer = () => {
 
     const updateTimer = () => {
       setPlayPercent(
-        Math.floor((player?.progress_ms / player?.item.duration_ms) * 100),
+        Math.floor((player?.progress_ms / player?.item?.duration_ms) * 100),
       );
       void refetch();
       updatedStartingTime();

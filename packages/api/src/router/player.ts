@@ -120,4 +120,31 @@ export const playerRouter = createTRPCRouter({
           console.log(err, "err from player router");
         });
     }),
+  seekSong: protectedProcedure
+    .input(
+      z.object({
+        device_id: z.string(),
+        position_ms: z.number(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      return await fetch(`https://api.spotify.com/v1/me/player/seek`, {
+        method: "PUT",
+        headers: {
+          Authorization: "Bearer " + ctx.accessToken,
+        },
+        body: JSON.stringify({
+          device_id: input.device_id,
+          position_ms: input.position_ms,
+        }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          console.log(data, "data from seek router");
+          return data;
+        })
+        .catch((err) => {
+          console.log(err, "err from player router");
+        });
+    }),
 });
