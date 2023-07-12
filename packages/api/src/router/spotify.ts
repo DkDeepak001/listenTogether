@@ -21,6 +21,7 @@ export const spotifyRouter = createTRPCRouter({
           images: true,
           spotifyId: true,
           refreshToken: true,
+          product: true,
           following: {
             select: {
               followersId: true,

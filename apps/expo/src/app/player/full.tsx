@@ -1,9 +1,10 @@
 import React from "react";
-import { Pressable, Text, View } from "react-native";
+import { Pressable, Text, ToastAndroid, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 
+import { api } from "~/utils/api";
 import usePlayer from "~/hooks/usePlayer";
 import downArrow from "../../../assets/player/downArrow.svg";
 import next from "../../../assets/player/next.svg";
@@ -13,10 +14,21 @@ const FullPlayer = () => {
   const router = useRouter();
   const { player, playPercent, formattedEndduration, formattedStartingTime } =
     usePlayer();
-  // const fill = (player?.progress_ms / player?.item?.duration_ms) * 100;
-  //two decimal places
 
-  console.log(formattedStartingTime);
+  const context = api.useContext();
+  const user = context.spotify.self.getData();
+  const { mutateAsync: pauseSong } = api.player.pauseSong.useMutation();
+
+  if (player.currently_playing_type === "ad") router.back();
+
+  const handlePauseSong = async () => {
+    if (user?.product === "free")
+      ToastAndroid.show(
+        "You need to have a premium account to use this feature",
+        ToastAndroid.SHORT,
+      );
+    else await pauseSong({ device_id: player.device.id });
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-black pt-5">
@@ -48,7 +60,10 @@ const FullPlayer = () => {
               alt="prev"
             />
           </Pressable>
-          <Pressable className="h-14 w-14 items-center justify-center rounded-full bg-white">
+          <Pressable
+            className="h-14 w-14 items-center justify-center rounded-full bg-white"
+            onPress={() => handlePauseSong()}
+          >
             <Image source={pause} className="h-8 w-8 " alt="pause" />
           </Pressable>
           <Pressable className="h-10 w-10 items-center justify-center rounded-full bg-white">
