@@ -23,7 +23,10 @@ const FullPlayer = () => {
   const { mutateAsync: nextSong } = api.player.nextSong.useMutation();
   const { mutateAsync: prevSong } = api.player.prevSong.useMutation();
 
-  if (player.currently_playing_type === "ad") router.back();
+  if (player.currently_playing_type === "ad") {
+    ToastAndroid.show("Playing ads is not supported", ToastAndroid.SHORT);
+    router.back();
+  }
 
   const handlePauseSong = async () => {
     if (user?.product === "free")

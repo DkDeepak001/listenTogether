@@ -13,24 +13,19 @@ const usePlayer = () => {
 
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
-    console.log(player);
 
     if (player?.currently_playing_type === "ad") {
       timeoutId = setInterval(() => {
-        void updateTimer();
+        void refetch();
       }, 3000);
-    }
-    if (!player?.is_playing) {
-      timeoutId = setInterval(() => {
-        void updateTimer();
-      }, 1000);
+      return;
     }
 
     if (!player) return;
 
     const updateTimer = () => {
       setPlayPercent(
-        Math.floor((player.progress_ms / player.item.duration_ms) * 100),
+        Math.floor((player?.progress_ms / player?.item.duration_ms) * 100),
       );
       void refetch();
       updatedStartingTime();
