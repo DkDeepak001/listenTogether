@@ -13,14 +13,20 @@ const usePlayer = () => {
 
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
+    console.log(player);
 
     if (player?.currently_playing_type === "ad") {
-      timeoutId = setTimeout(() => {
-        void refetch();
+      timeoutId = setInterval(() => {
+        void updateTimer();
       }, 3000);
     }
+    if (!player?.is_playing) {
+      timeoutId = setInterval(() => {
+        void updateTimer();
+      }, 1000);
+    }
 
-    if (!player || !player.item) return;
+    if (!player) return;
 
     const updateTimer = () => {
       setPlayPercent(
@@ -33,7 +39,7 @@ const usePlayer = () => {
     updateTimer(); // Initial update
     updateFormatedDuration();
 
-    timeoutId = setTimeout(updateTimer, 1000);
+    timeoutId = setInterval(updateTimer, 1000);
 
     return () => {
       clearTimeout(timeoutId);
