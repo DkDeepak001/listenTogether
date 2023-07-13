@@ -3,8 +3,10 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import {
   type AlbumResponse,
+  type Artist,
   type PlaylistResponse,
   type TopArtistsResponse,
+  type Track,
   type TrackResponse,
 } from "./types";
 
@@ -127,5 +129,47 @@ export const spotifyRouter = createTRPCRouter({
         .catch((err) => {
           console.log(err, "err from spotify router");
         });
+    }),
+
+  artist: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const artist = await fetch(
+        `https://api.spotify.com/v1/artists/${input.id}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: "Bearer " + ctx.accessToken,
+          },
+        },
+      )
+        .then((res) => res.json())
+        .then((data): Promise<Artist> => {
+          return data as Promise<Artist>;
+        })
+        .catch((err) => {
+          console.log(err, "err from spotify router");
+        });
+      const topTracks = await fetch(
+        `https://api.spotify.com/v1/artists/${input.id}/top-tracks?market=ES`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: "Bearer " + ctx.accessToken,
+          },
+        },
+      )
+        .then((res) => res.json())
+        .then((data): Promise<{ tracks: Track[] }> => {
+          return data as Promise<{ tracks: Track[] }>;
+        })
+        .catch((err) => {
+          console.log(err, "err from spotify router");
+        });
+      return { artist, topTracks };
     }),
 });

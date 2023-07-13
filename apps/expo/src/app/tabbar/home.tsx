@@ -37,9 +37,9 @@ const Home = () => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     if (topTracks?.error?.status === 401) {
-      void updateToken();
-      void refetchTopArtist();
-      void refetchTopTracks();
+      updateToken();
+      refetchTopArtist();
+      refetchTopTracks();
     }
   }
 
@@ -175,7 +175,10 @@ const Home = () => {
           )}
           renderItem={({ item }) => {
             return (
-              <View className="my-2 mb-5 flex w-[48%] flex-col items-center gap-y-2">
+              <Pressable
+                className="my-2 mb-5 flex w-[48%] flex-col items-center gap-y-2"
+                onPress={() => router.push(`/artist/${item.id}`)}
+              >
                 <Image
                   source={{ uri: (item?.images[0]?.url as string) ?? "" }}
                   className="h-24 w-full rounded-2xl"
@@ -187,7 +190,7 @@ const Home = () => {
                     {item.name}
                   </Text>
                 </View>
-              </View>
+              </Pressable>
             );
           }}
         />
