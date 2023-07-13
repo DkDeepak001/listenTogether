@@ -9,6 +9,7 @@ import { type Track } from "@acme/api/src/router/types";
 import { api } from "~/utils/api";
 import { getGreeting } from "~/utils/greeting";
 import Pill from "~/components/pill/pill";
+import useAudio from "~/hooks/useAudio";
 import pause from "../../../assets/playlist/pause.svg";
 import play from "../../../assets/playlist/play.svg";
 import useAuthToken from "../../hooks/useAuthToken";
@@ -18,9 +19,7 @@ const Home = () => {
   const router = useRouter();
   const [type, setType] = useState<TopType>("tracks");
   const { updateToken } = useAuthToken();
-  const [currnetSound, setCurrentSound] = useState<Audio.Sound | null>(null);
-  const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
-  const [playing, setPlaying] = useState<boolean>(false);
+  const { handlePlay, playing, currentTrack } = useAudio();
   const { data: user, isLoading } = api.spotify.self.useQuery();
 
   const { data: topTracks, refetch: refetchTopTracks } =
@@ -42,46 +41,6 @@ const Home = () => {
       refetchTopTracks();
     }
   }
-
-  const handlePlay = async (item: Track) => {
-    try {
-      if (currentTrack === item && playing) {
-        await currnetSound?.pauseAsync();
-        setPlaying(false);
-        return;
-      }
-
-      setCurrentTrack(item);
-      if (currnetSound) {
-        await currnetSound.pauseAsync();
-        setPlaying(false);
-      }
-      await Audio.setAudioModeAsync({
-        playsInSilentModeIOS: true,
-        staysActiveInBackground: false,
-        shouldDuckAndroid: true,
-      });
-
-      const { sound, status } = await Audio.Sound.createAsync(
-        {
-          uri: item?.preview_url,
-        },
-        { isLooping: false, shouldPlay: true },
-      );
-      ToastAndroid.showWithGravity(
-        `Playing Preview for 30 sec of ${item.name} `,
-        ToastAndroid.SHORT,
-        ToastAndroid.BOTTOM,
-      );
-      setCurrentSound(sound);
-      setPlaying(status.isLoaded);
-      await sound.playAsync();
-
-      await sound.playAsync();
-    } catch (error) {
-      console.log(error);
-    }
-  };
 
   return (
     <View className=" flex-1  bg-black px-5 pt-5">

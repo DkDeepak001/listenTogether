@@ -143,10 +143,19 @@ export interface CurrentlyPlaying {
 
 //_______________________________________
 // Spotify Types
+export interface PlaylistTrack {
+  href: string;
+  limit: number;
+  next: string | null;
+  offset: number;
+  previous: string | null;
+  total: number;
+  items: { track: Track }[];
+}
 export interface Playlist {
   collaborative: boolean;
   description: string;
-  external_urls: object[];
+  external_urls: ExternalUrls;
   href: string;
   id: string;
   images: Image[];
@@ -155,7 +164,7 @@ export interface Playlist {
   primary_color: null;
   public: boolean;
   snapshot_id: string;
-  tracks: object;
+  tracks: PlaylistTrack;
   type: "playlist";
   uri: string;
 }

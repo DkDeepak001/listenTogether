@@ -5,7 +5,7 @@ import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { api } from "~/utils/api";
-import { scopes } from "../constants/scope";
+import { scopes } from "../../constants/scope";
 
 const clientId = "3fd0b855d9be4752bf7529976415a1d9";
 const redirect_url = "https://listen-together-nextjs.vercel.app/api/spotify";

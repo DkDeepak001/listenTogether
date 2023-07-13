@@ -5,13 +5,16 @@ import { Image } from "expo-image";
 import { useLocalSearchParams } from "expo-router";
 
 import { api } from "~/utils/api";
+import useAudio from "~/hooks/useAudio";
 
 const ArtistPage = () => {
   const { id } = useLocalSearchParams();
   const { data: artist, isLoading } = api.spotify.artist.useQuery({
     id: id as string,
   });
+
   if (isLoading) return <Text className="text-black">Loading...</Text>;
+
   return (
     <SafeAreaView className="flex-1 bg-black">
       <FlatList

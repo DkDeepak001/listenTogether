@@ -1,12 +1,14 @@
 import React from "react";
 import { Button, FlatList, Pressable, Text, View } from "react-native";
 import { Image } from "expo-image";
+import { useRouter } from "expo-router";
 
 import { api } from "~/utils/api";
 import pause from "../../../assets/playlist/pause.svg";
 import play from "../../../assets/playlist/play.svg";
 
 const Playlist = () => {
+  const router = useRouter();
   const { data: playlist } = api.spotify.getUserPlaylists.useQuery();
 
   return (
@@ -22,7 +24,10 @@ const Playlist = () => {
           </View>
         )}
         renderItem={({ item }) => (
-          <View className="my-3 flex flex-row">
+          <Pressable
+            className="my-3 flex flex-row"
+            onPress={() => router.push(`/playlist/${item.id}`)}
+          >
             <Image
               className="h-48 w-full rounded-lg opacity-50"
               source={{ uri: item.images[0]?.url ?? "" }}
@@ -45,7 +50,7 @@ const Playlist = () => {
                 alt="pause"
               />
             </Pressable>
-          </View>
+          </Pressable>
         )}
         keyExtractor={(item) => item.id}
       />

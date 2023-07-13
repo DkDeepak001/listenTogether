@@ -4,6 +4,7 @@ import { createTRPCRouter, protectedProcedure } from "../trpc";
 import {
   type AlbumResponse,
   type Artist,
+  type Playlist,
   type PlaylistResponse,
   type TopArtistsResponse,
   type Track,
@@ -171,5 +172,25 @@ export const spotifyRouter = createTRPCRouter({
           console.log(err, "err from spotify router");
         });
       return { artist, topTracks };
+    }),
+  playlist: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      return await fetch(`https://api.spotify.com/v1/playlists/${input.id}`, {
+        headers: {
+          Authorization: "Bearer " + ctx.accessToken,
+        },
+      })
+        .then((res) => res.json())
+        .then((data): Promise<Playlist> => {
+          return data as Promise<Playlist>;
+        })
+        .catch((err) => {
+          console.log(err, "err from spotify router");
+        });
     }),
 });
