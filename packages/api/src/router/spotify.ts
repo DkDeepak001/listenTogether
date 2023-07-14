@@ -189,6 +189,7 @@ export const spotifyRouter = createTRPCRouter({
         .then((data): Promise<Playlist> => {
           return data as Promise<Playlist>;
         })
+
         .catch((err) => {
           console.log(err, "err from spotify router");
         });

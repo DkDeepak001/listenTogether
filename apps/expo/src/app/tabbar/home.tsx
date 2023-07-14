@@ -1,10 +1,7 @@
 import React, { useState } from "react";
-import { FlatList, Pressable, Text, ToastAndroid, View } from "react-native";
-import { Audio } from "expo-av";
+import { FlatList, Pressable, Text, View } from "react-native";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
-
-import { type Track } from "@acme/api/src/router/types";
 
 import { api } from "~/utils/api";
 import { getGreeting } from "~/utils/greeting";
@@ -19,7 +16,7 @@ const Home = () => {
   const router = useRouter();
   const [type, setType] = useState<TopType>("tracks");
   const { updateToken } = useAuthToken();
-  const { handlePlay, playing, currentTrack } = useAudio();
+  const { handlePlay, isPlaying, currentTrack } = useAudio();
   const { data: user, isLoading } = api.spotify.self.useQuery();
 
   const { data: topTracks, refetch: refetchTopTracks } =
@@ -33,6 +30,7 @@ const Home = () => {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   if (topTracks?.error || topArtists?.error) {
+    console.log(topTracks, topArtists);
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     if (topTracks?.error?.status === 401) {
@@ -108,7 +106,7 @@ const Home = () => {
               >
                 <Image
                   className="h-4 w-4 rounded-full bg-blue-800"
-                  source={currentTrack === item && playing ? pause : play}
+                  source={currentTrack === item && isPlaying ? pause : play}
                   alt="pause"
                 />
               </Pressable>

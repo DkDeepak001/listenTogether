@@ -1,29 +1,32 @@
-import { useState } from "react";
 import { ToastAndroid } from "react-native";
 import { Audio } from "expo-av";
 
-import {
-  type CurrentlyPlayingResponse,
-  type Track,
-} from "@acme/api/src/router/types";
+import { type Track } from "@acme/api/src/router/types";
+
+import { useAudioStore } from "~/store/audio";
 
 const useAudio = () => {
-  const [currnetSound, setCurrentSound] = useState<Audio.Sound | null>(null);
-  const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
-  const [playing, setPlaying] = useState<boolean>(false);
+  const {
+    isPlaying,
+    setIsPlaying,
+    currentSound,
+    currentTrack,
+    setCurrentTrack,
+    setCurrentSound,
+  } = useAudioStore();
 
   const handlePlay = async (item: Track) => {
     try {
-      if (currentTrack === item && playing) {
-        await currnetSound?.pauseAsync();
-        setPlaying(false);
+      if (currentTrack === item && isPlaying) {
+        await currentSound?.pauseAsync();
+        setIsPlaying(false);
         return;
       }
 
       setCurrentTrack(item);
-      if (currnetSound) {
-        await currnetSound.pauseAsync();
-        setPlaying(false);
+      if (currentSound) {
+        await currentSound.pauseAsync();
+        setIsPlaying(false);
       }
       await Audio.setAudioModeAsync({
         playsInSilentModeIOS: true,
@@ -31,6 +34,12 @@ const useAudio = () => {
         shouldDuckAndroid: true,
       });
 
+      if (!item?.preview_url)
+        return ToastAndroid.showWithGravity(
+          `No Preview Available for ${item.name} `,
+          ToastAndroid.SHORT,
+          ToastAndroid.BOTTOM,
+        );
       const { sound, status } = await Audio.Sound.createAsync(
         {
           uri: item?.preview_url,
@@ -43,7 +52,7 @@ const useAudio = () => {
         ToastAndroid.BOTTOM,
       );
       setCurrentSound(sound);
-      setPlaying(status.isLoaded);
+      setIsPlaying(status.isLoaded);
       await sound.playAsync();
 
       await sound.playAsync();
@@ -53,11 +62,11 @@ const useAudio = () => {
   };
   return {
     handlePlay,
-    playing,
+    isPlaying,
     currentTrack,
   } as {
     handlePlay: (item: Track) => void;
-    playing: boolean;
+    isPlaying: boolean;
     currentTrack: Track | null;
   };
 };
