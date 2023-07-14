@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import {
+  type Album,
   type AlbumResponse,
   type Artist,
   type Playlist,
@@ -190,6 +191,26 @@ export const spotifyRouter = createTRPCRouter({
           return data as Promise<Playlist>;
         })
 
+        .catch((err) => {
+          console.log(err, "err from spotify router");
+        });
+    }),
+  album: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      return await fetch(`https://api.spotify.com/v1/albums/${input.id}`, {
+        headers: {
+          Authorization: "Bearer " + ctx.accessToken,
+        },
+      })
+        .then((res) => res.json())
+        .then((data): Promise<Album> => {
+          return data as Promise<Album>;
+        })
         .catch((err) => {
           console.log(err, "err from spotify router");
         });

@@ -203,6 +203,7 @@ export interface Album {
   type: "album";
   uri: string;
   artists: Artist[];
+  tracks: TrackResponse;
 }
 
 export interface Artist {
