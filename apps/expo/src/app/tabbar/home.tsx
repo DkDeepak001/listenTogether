@@ -7,6 +7,7 @@ import { api } from "~/utils/api";
 import { getGreeting } from "~/utils/greeting";
 import Pill from "~/components/pill/pill";
 import useAudio from "~/hooks/useAudio";
+import { useRefreshOnFocus } from "../_layout";
 import pause from "../../../assets/playlist/pause.svg";
 import play from "../../../assets/playlist/play.svg";
 import useAuthToken from "../../hooks/useAuthToken";
@@ -16,6 +17,9 @@ const Home = () => {
   const router = useRouter();
   const [type, setType] = useState<TopType>("tracks");
   const { updateToken } = useAuthToken();
+  console.log(type, "type from home----------------------------");
+  useRefreshOnFocus(updateToken);
+
   const { handlePlay, isPlaying, currentTrack } = useAudio();
   const { data: user, isLoading } = api.spotify.self.useQuery();
 
@@ -25,7 +29,6 @@ const Home = () => {
     api.spotify.topArtists.useQuery();
 
   if (isLoading || !user) return <Text>Loading...</Text>;
-
   // TODO add types to error
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
@@ -34,9 +37,9 @@ const Home = () => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     if (topTracks?.error?.status === 401) {
-      updateToken();
-      refetchTopArtist();
-      refetchTopTracks();
+      void updateToken();
+      void refetchTopArtist();
+      void refetchTopTracks();
     }
   }
 

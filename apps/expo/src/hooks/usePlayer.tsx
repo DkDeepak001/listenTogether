@@ -3,14 +3,13 @@ import { useEffect, useState } from "react";
 import { type CurrentlyPlayingResponse } from "@acme/api/src/router/types";
 
 import { api } from "~/utils/api";
+import { useRefreshOnFocus } from "~/app/_layout";
 import useAuthToken from "./useAuthToken";
 
 const usePlayer = () => {
   const { data: player, refetch } = api.player.getPlayBackState.useQuery();
-  const { authToken, refreshToken, updateToken } = useAuthToken();
-  if (authToken?.error) {
-    if (authToken?.error?.status === 401) updateToken();
-  }
+  const { authToken, updateToken } = useAuthToken();
+  useRefreshOnFocus(updateToken);
 
   const [playPercent, setPlayPercent] = useState<number>(0);
   const [formattedEndduration, setFormattedEndDuration] = useState<string>("");
@@ -44,6 +43,9 @@ const usePlayer = () => {
     };
   }, [player]);
 
+  if (authToken?.error) {
+    if (authToken?.error?.status === 401) updateToken();
+  }
   const updatedStartingTime = () => {
     if (!player?.item) return;
     const minutes = Math.floor(player?.progress_ms / 60000);

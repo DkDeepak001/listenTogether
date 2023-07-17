@@ -1,8 +1,6 @@
-import { useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Tabs } from "expo-router";
 
-import { api } from "~/utils/api";
 import AppTabBar from "~/components/tabbar/tabbar";
 import usePlayer from "~/hooks/usePlayer";
 

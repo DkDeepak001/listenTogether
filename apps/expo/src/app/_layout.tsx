@@ -1,11 +1,29 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import { View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { Stack, useRouter } from "expo-router";
+import { Stack, useFocusEffect, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { TRPCProvider } from "~/utils/api";
+import useAuthToken from "~/hooks/useAuthToken";
+
+export function useRefreshOnFocus<T>(refetch: () => Promise<T>) {
+  const firstTimeRef = useRef(true);
+  useFocusEffect(
+    useCallback(() => {
+      console.log(
+        "first time so not refetching set it to false=========================================",
+        firstTimeRef.current,
+      );
+      if (firstTimeRef.current) {
+        firstTimeRef.current = false;
+        void refetch();
+        return;
+      }
+    }, [refetch]),
+  );
+}
 
 const RootLayout = () => {
   return (
