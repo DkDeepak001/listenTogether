@@ -6,16 +6,11 @@ import { StatusBar } from "expo-status-bar";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { TRPCProvider } from "~/utils/api";
-import useAuthToken from "~/hooks/useAuthToken";
 
 export function useRefreshOnFocus<T>(refetch: () => Promise<T>) {
   const firstTimeRef = useRef(true);
   useFocusEffect(
     useCallback(() => {
-      console.log(
-        "first time so not refetching set it to false=========================================",
-        firstTimeRef.current,
-      );
       if (firstTimeRef.current) {
         firstTimeRef.current = false;
         void refetch();

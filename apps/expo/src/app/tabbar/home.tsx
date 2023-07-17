@@ -17,7 +17,6 @@ const Home = () => {
   const router = useRouter();
   const [type, setType] = useState<TopType>("tracks");
   const { updateToken } = useAuthToken();
-  console.log(type, "type from home----------------------------");
   useRefreshOnFocus(updateToken);
 
   const { handlePlay, isPlaying, currentTrack } = useAudio();
