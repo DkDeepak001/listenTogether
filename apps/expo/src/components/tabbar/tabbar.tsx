@@ -1,4 +1,5 @@
 import { Pressable, SafeAreaView, Text, View } from "react-native";
+import * as Haptics from "expo-haptics";
 // import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
@@ -22,7 +23,7 @@ const AppTabBar = ({ state, player }: AppTabBarProps) => {
   const router = useRouter();
 
   const handlePress = (url: string) => {
-    // void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     router.push(url);
   };
 
