@@ -12,7 +12,7 @@ import search from "../../../assets/tabbar/search.svg";
 import Miniplayer from "../player/miniplayer";
 
 type AppTabBarProps = BottomTabBarProps & {
-  player: ReturnType<
+  player?: ReturnType<
     ReturnType<typeof api.useContext>["player"]["getPlayBackState"]["getData"]
   >;
 };
@@ -27,12 +27,12 @@ const AppTabBar = ({ state, player }: AppTabBarProps) => {
 
   return (
     <SafeAreaView className="bg-black">
-      {player?.item && (
+      {/* {player?.item && (
         <Miniplayer
           player={player}
           pressableProps={{ onPress: () => router.push("/player/full") }}
         />
-      )}
+      )} */}
 
       <View className="flex-row items-center justify-between bg-black/95 px-8 py-3">
         <Pressable

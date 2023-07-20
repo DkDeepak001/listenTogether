@@ -5,14 +5,14 @@ import AppTabBar from "~/components/tabbar/tabbar";
 import usePlayer from "~/hooks/usePlayer";
 
 const BottomTabs = () => {
-  const { player } = usePlayer();
+  // const { player } = usePlayer();
   return (
     <SafeAreaView className=" w-full flex-1">
       <Tabs
         screenOptions={{
           headerShown: false,
         }}
-        tabBar={(props) => <AppTabBar {...props} player={player} />}
+        tabBar={(props) => <AppTabBar {...props} />}
       >
         <Tabs.Screen name="home" />
       </Tabs>

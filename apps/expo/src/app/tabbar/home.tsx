@@ -35,10 +35,11 @@ const Home = () => {
     console.log(topTracks, topArtists);
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    if (topTracks?.error?.status === 401) {
-      void updateToken();
-      void refetchTopArtist();
-      void refetchTopTracks();
+    if (topTracks?.error?.status === 401 || topArtists?.error?.status === 401) {
+      console.log("updating token inside if");
+      updateToken();
+      refetchTopArtist();
+      refetchTopTracks();
     }
   }
 
