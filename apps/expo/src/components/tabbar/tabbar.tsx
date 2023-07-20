@@ -9,6 +9,7 @@ import friends from "../../../assets/tabbar/friends.svg";
 import home from "../../../assets/tabbar/home.svg";
 import playlist from "../../../assets/tabbar/playlist.svg";
 import search from "../../../assets/tabbar/search.svg";
+import upload from "../../../assets/tabbar/upload.svg";
 import Miniplayer from "../player/miniplayer";
 
 type AppTabBarProps = BottomTabBarProps & {
@@ -34,7 +35,7 @@ const AppTabBar = ({ state, player }: AppTabBarProps) => {
         />
       )} */}
 
-      <View className="flex-row items-center justify-between bg-black/95 px-8 py-3">
+      <View className="flex-row items-center justify-between bg-black/95 px-4 py-3">
         <Pressable
           onPress={() => void handlePress("/tabbar/home")}
           className={`flex h-14 w-1/6 items-center justify-center rounded-full ${
@@ -60,6 +61,19 @@ const AppTabBar = ({ state, player }: AppTabBarProps) => {
             className={"h-10 w-12"}
             contentFit="contain"
             alt="search"
+          />
+        </Pressable>
+        <Pressable
+          onPress={() => void handlePress("/tabbar/upload")}
+          className={`flex h-14 w-1/6 items-center justify-center rounded-full ${
+            state.index === 4 ? "bg-blue-700" : ""
+          }  py-2`}
+        >
+          <Image
+            source={upload}
+            className={"h-8 w-12"}
+            contentFit="contain"
+            alt="upload"
           />
         </Pressable>
 
