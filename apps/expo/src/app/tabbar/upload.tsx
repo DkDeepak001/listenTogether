@@ -1,7 +1,8 @@
-import React from "react";
-import { Pressable, ScrollView, Text, View } from "react-native";
+import React, { useState } from "react";
+import { Button, Pressable, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Image } from "expo-image";
+import * as ImagePicker from "expo-image-picker";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
@@ -12,6 +13,8 @@ import pickImage from "../../../assets/upload/pickImage.svg";
 import pickSong from "../../../assets/upload/pickSong.svg";
 
 const Upload = () => {
+  const [image, setImage] = useState(null);
+
   const schema = z.object({
     name: z.string().min(3).max(100),
     albumName: z.string().min(3).max(100),
@@ -29,6 +32,20 @@ const Upload = () => {
   const submit = (data: FormSchema) => {
     console.log(data);
   };
+
+  const openGallery = async () => {
+    // No permissions request is necessary for launching the image library
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+    console.log(result);
+    if (!result.canceled) {
+      setImage(result.assets[0].uri);
+    }
+  };
   return (
     <SafeAreaView className="flex-1 bg-black ">
       <ScrollView
@@ -39,17 +56,31 @@ const Upload = () => {
         }}
       >
         {/* <View className="flex  w-11/12 flex-col items-center justify-center gap-y-5 rounded-lg bg-white/50 p-2"> */}
-        <Pressable className="mb-5 flex  h-60 w-5/6 flex-col items-center justify-center gap-y-1 rounded-lg border  border-dashed border-white">
-          <Image
-            source={pickImage}
-            className="h-16 w-16"
-            contentFit="contain"
-            alt="upload"
-          />
+        <Pressable
+          onPress={openGallery}
+          className="mb-5 flex h-60 w-5/6  overflow-hidden rounded-lg  border border-dashed border-white"
+        >
+          {!image ? (
+            <View className="flex-col items-center justify-center gap-y-1">
+              <Image
+                source={pickImage}
+                className="h-16 w-16"
+                contentFit="contain"
+                alt="upload"
+              />
 
-          <Text className="text-xl font-bold text-white">
-            Pick a Cover Image{" "}
-          </Text>
+              <Text className="text-xl font-bold text-white">
+                Pick a Cover Image{" "}
+              </Text>
+            </View>
+          ) : (
+            <Image
+              source={image}
+              className="h-full w-full object-cover"
+              contentFit="cover"
+              alt="upload"
+            />
+          )}
         </Pressable>
         <Pressable className="flex h-28 w-5/6 flex-row items-center justify-center rounded-lg bg-blue-500">
           <Image

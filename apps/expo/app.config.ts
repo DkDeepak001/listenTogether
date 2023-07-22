@@ -38,7 +38,22 @@ const defineConfig = (): ExpoConfig => ({
     spotifyClientId: process.env.SPOTIFY_CLIENT_ID,
     apiUrl: process.env.API_URL ?? "localhost:3000",
   },
-  plugins: ["./expo-plugins/with-modify-gradle.js"],
+  plugins: [
+    "./expo-plugins/with-modify-gradle.js",
+    [
+      "expo-image-picker",
+      {
+        photosPermission:
+          "The app accesses your photos to let you share them with your friends.",
+      },
+    ],
+    [
+      "expo-document-picker",
+      {
+        iCloudContainerEnvironment: "Production",
+      },
+    ],
+  ],
 });
 
 export default defineConfig;
