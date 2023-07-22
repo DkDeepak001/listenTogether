@@ -15,6 +15,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 
+import { api } from "~/utils/api";
 import InputBox from "~/components/input/input";
 import upload from "../../../assets/tabbar/upload.svg";
 import pickImage from "../../../assets/upload/pickImage.svg";
@@ -27,29 +28,29 @@ type FormSchema = {
   image: ImagePicker.ImagePickerResult | null;
   audio: MediaLibrary.Asset | null;
 };
+const schema = z.object({
+  name: z.string().min(3).max(100),
+  albumName: z.string().min(3).max(100),
+  artistName: z.string().min(3).max(100),
+  image: z.custom((value) => {
+    if (!value) {
+      return "Image is required";
+    }
+    return true;
+  }),
+  audio: z.custom((value) => {
+    if (!value) {
+      return "Audio is required";
+    }
+    return true;
+  }),
+});
 const Upload = () => {
   const [permissionResponse, requestPermission] = MediaLibrary.usePermissions();
   const [audio, setAudio] =
     useState<MediaLibrary.PagedInfo<MediaLibrary.Asset> | null>(null);
-
   const [show, setShow] = useState<boolean>(false);
-  const schema = z.object({
-    name: z.string().min(3).max(100),
-    albumName: z.string().min(3).max(100),
-    artistName: z.string().min(3).max(100),
-    image: z.custom((value) => {
-      if (!value) {
-        return "Image is required";
-      }
-      return true;
-    }),
-    audio: z.custom((value) => {
-      if (!value) {
-        return "Audio is required";
-      }
-      return true;
-    }),
-  });
+  const { mutateAsync: upload } = api.upload.uploadSong.useMutation();
   const {
     control,
     handleSubmit,

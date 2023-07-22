@@ -7,12 +7,12 @@
  * The pieces you will need to use are documented accordingly near the end
  */
 import { initTRPC, TRPCError } from "@trpc/server";
-import { type CreateNextContextOptions } from "@trpc/server/adapters/next";
+import type { CreateNextContextOptions } from "@trpc/server/adapters/next";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
-import { getServerSession, type Session } from "@acme/auth";
-import { prisma, type User } from "@acme/db";
+import type { Session } from "@acme/auth";
+import { prisma } from "@acme/db";
 
 /**
  * 1. CONTEXT
@@ -23,11 +23,11 @@ import { prisma, type User } from "@acme/db";
  * processing a request
  *
  */
-type CreateContextOptions = {
+interface CreateContextOptions {
   session: Session | null;
   userId: string;
   accessToken: string;
-};
+}
 
 /**
  * This helper generates the "internals" for a tRPC context. If you need to use
@@ -54,18 +54,16 @@ const createInnerTRPCContext = (opts: CreateContextOptions) => {
  */
 export const createTRPCContext = async (opts: CreateNextContextOptions) => {
   const { req, res } = opts;
-
   const authHeader = req.headers.authorization;
-  const { userId, accessToken } = JSON.parse(authHeader as string) as {
+  const { userId, accessToken } = JSON.parse(authHeader!) as {
     userId: string;
     accessToken: string;
   };
 
   // Get the session from the server using the unstable_getServerSession wrapper function
-  const session = await getServerSession({ req, res });
 
   return createInnerTRPCContext({
-    session,
+    session: null,
     userId,
     accessToken,
   });
