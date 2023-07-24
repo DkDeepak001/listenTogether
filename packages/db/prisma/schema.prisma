@@ -13,6 +13,11 @@ datasource db {
 }
 
 
+enum FileType{
+  IMAGE
+  AUDIO
+}
+
 model User {
   id                String       @id @default(cuid())
   country           String
@@ -30,6 +35,7 @@ model User {
   requestTo         RequestLog[] @relation("requestTo")
   followers        Friends[] @relation("followers")
   following        Friends[] @relation("following")
+  FilMetadata      FilMetadata[]
 
   createdAt         DateTime     @default(now())
   updatedAt         DateTime     @updatedAt
@@ -64,4 +70,15 @@ model Friends{
   following       User?        @relation("following",fields: [followingId], references: [id])
 
   @@unique([followersId, followingId])
+}
+
+
+model FilMetadata{
+  id String @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  name String
+  type FileType
+  createdById String
+  createdBy User @relation(fields: [createdById], references: [id])
 }

@@ -17,7 +17,7 @@ import { z } from "zod";
 
 import { api } from "~/utils/api";
 import InputBox from "~/components/input/input";
-import upload from "../../../assets/tabbar/upload.svg";
+import uploadImage from "../../../assets/tabbar/upload.svg";
 import pickImage from "../../../assets/upload/pickImage.svg";
 import pickSong from "../../../assets/upload/pickSong.svg";
 
@@ -50,7 +50,9 @@ const Upload = () => {
   const [audio, setAudio] =
     useState<MediaLibrary.PagedInfo<MediaLibrary.Asset> | null>(null);
   const [show, setShow] = useState<boolean>(false);
-  const { mutateAsync: upload } = api.upload.uploadSong.useMutation();
+  const { mutateAsync: uploadFn } = api.upload.uploadSong.useMutation();
+  const { mutateAsync: createPresignedUrl } =
+    api.upload.getPrsignedUrl.useMutation();
   const {
     control,
     handleSubmit,
@@ -61,8 +63,27 @@ const Upload = () => {
   } = useForm<FormSchema>({
     resolver: zodResolver(schema),
   });
-  const submit = (data: FormSchema) => {
-    console.log(data);
+  const submit = async (data: FormSchema) => {
+    if (!data || !data.audio?.uri || !data.image?.assets) return;
+    try {
+      const { url } = await createPresignedUrl({
+        name: data.audio.filename,
+        type: "IMAGE",
+      });
+
+      console.log(url);
+
+      const res = await fetch(url, {
+        method: "PUT",
+        body: data?.image?.assets[0],
+        headers: {
+          "Content-Type": "image/jpg",
+        },
+      });
+      console.log(res);
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   useEffect(() => {
@@ -92,7 +113,6 @@ const Upload = () => {
         const result = await MediaLibrary.getAssetsAsync({
           mediaType: MediaLibrary.MediaType.audio,
         });
-        console.log(result);
         setAudio(result);
       }
     }
@@ -229,7 +249,7 @@ const Upload = () => {
           onPress={handleSubmit(submit)}
         >
           <Image
-            source={upload}
+            source={uploadImage}
             className="mr-2 h-5 w-5"
             contentFit="contain"
             alt="upload"
