@@ -5,6 +5,7 @@ import {
   Pressable,
   ScrollView,
   Text,
+  ToastAndroid,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -50,7 +51,7 @@ const Upload = () => {
   const [audio, setAudio] =
     useState<MediaLibrary.PagedInfo<MediaLibrary.Asset> | null>(null);
   const [show, setShow] = useState<boolean>(false);
-  const { mutateAsync: uploadFn } = api.upload.uploadSong.useMutation();
+  const { mutateAsync: uploadSong } = api.upload.uploadSong.useMutation();
   const { mutateAsync: createPresignedUrl } =
     api.upload.getPrsignedUrl.useMutation();
   const {
@@ -66,21 +67,61 @@ const Upload = () => {
   const submit = async (data: FormSchema) => {
     if (!data || !data.audio?.uri || !data.image?.assets) return;
     try {
-      const { url } = await createPresignedUrl({
-        name: data.audio.filename,
-        type: "IMAGE",
-      });
+      let ImageUrl: string;
+      let ImageMetadataId: string;
+      let AudioUrl: string;
+      let AudioMetadataId: string;
 
-      console.log(url);
+      const imageType = getFileTypeFromPath(data?.image?.assets[0]?.uri);
+      console.log(imageType);
+      if (imageType === "jpg" || imageType === "png" || imageType === "jpeg") {
+        const { url, resourceUrl, metaDataId } = await createPresignedUrl({
+          name: ` ${data.audio.filename}_CoverImage`,
+          format: imageType,
+          type: "IMAGE",
+        });
 
-      const res = await fetch(url, {
-        method: "PUT",
-        body: data?.image?.assets[0],
-        headers: {
-          "Content-Type": "image/jpg",
-        },
+        await fetch(url, {
+          method: "PUT",
+          body: data?.image?.assets[0],
+          headers: {
+            "Content-Type": `image/${imageType}`,
+          },
+        });
+        ImageUrl = resourceUrl as string;
+        ImageMetadataId = metaDataId as string;
+      }
+
+      const audioType = getFileTypeFromPath(data.audio.uri);
+      console.log(audioType);
+      if (audioType === "mp3" || audioType === "wav" || audioType === "m4a") {
+        const { url, resourceUrl, metaDataId } = await createPresignedUrl({
+          name: `${data.audio.filename}`,
+          format: audioType,
+          type: "AUDIO",
+        });
+
+        await fetch(url, {
+          method: "PUT",
+          body: data?.audio,
+          headers: {
+            "Content-Type": `audio/${audioType}`,
+          },
+        });
+        AudioUrl = resourceUrl as string;
+        AudioMetadataId = metaDataId as string;
+      }
+
+      if (!AudioUrl || !ImageUrl) return;
+      await uploadSong({
+        name: data.name,
+        albumName: data.albumName,
+        artistName: data.artistName,
+        songUrl: AudioUrl,
+        imageUrl: ImageUrl,
+        SongMetadataId: AudioMetadataId,
+        ImageMetadataId: ImageMetadataId,
       });
-      console.log(res);
     } catch (e) {
       console.log(e);
     }
@@ -299,3 +340,16 @@ const Upload = () => {
 };
 
 export default Upload;
+
+function getFileTypeFromPath(filePath: string) {
+  // Split the file path by the dot (.) to get the file extension
+  const parts = filePath.split(".");
+
+  // Get the last part of the split array, which should be the file extension
+  const fileExtension = parts[parts.length - 1];
+
+  // Convert the file extension to lowercase to handle different cases like JPG, JPEG, etc.
+  const fileType = fileExtension?.toLowerCase();
+
+  return fileType;
+}

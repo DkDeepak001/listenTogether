@@ -35,7 +35,8 @@ model User {
   requestTo         RequestLog[] @relation("requestTo")
   followers        Friends[] @relation("followers")
   following        Friends[] @relation("following")
-  FilMetadata      FilMetadata[]
+  fileMetadata      FileMetadata[]
+  song              Song[]
 
   createdAt         DateTime     @default(now())
   updatedAt         DateTime     @updatedAt
@@ -73,7 +74,7 @@ model Friends{
 }
 
 
-model FilMetadata{
+model FileMetadata{
   id String @id @default(cuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -81,4 +82,27 @@ model FilMetadata{
   type FileType
   createdById String
   createdBy User @relation(fields: [createdById], references: [id])
+  
+  song Song[] @relation("song")
+  image Song[] @relation("image")
+}
+
+
+//TODO add song duration
+model Song{
+  id String @id @default(cuid())
+  createdBy User @relation(fields: [createdById], references: [id])
+  createdById String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  name String
+  album String
+  artist String
+  imageUri String
+  songUri String
+  ImageMetadataId String
+  imageMetadata FileMetadata @relation("image",fields: [ImageMetadataId], references: [id])
+  SongMetadataId String
+  songMetadata FileMetadata @relation("song",fields: [SongMetadataId], references: [id])
+
 }

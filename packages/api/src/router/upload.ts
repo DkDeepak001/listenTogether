@@ -12,21 +12,38 @@ export const uploadRouter = createTRPCRouter({
         name: z.string(),
         albumName: z.string(),
         artistName: z.string(),
-        image: z.object({
-          key: z.string(),
-          url: z.string(),
-        }),
+        imageUrl: z.string(),
+        songUrl: z.string(),
+        ImageMetadataId: z.string(),
+        SongMetadataId: z.string(),
       }),
     )
-    .mutation(({ input }) => {
+    .mutation(async ({ ctx, input }) => {
       try {
-        console.log(
-          "uploadSong",
-          input.name,
-          input.albumName,
-          input.artistName,
-        );
-        return;
+        return await ctx.prisma.song.create({
+          data: {
+            name: input.name,
+            album: input.albumName,
+            artist: input.artistName,
+            imageUri: input.imageUrl,
+            songUri: input.songUrl,
+            createdBy: {
+              connect: {
+                id: ctx?.userId,
+              },
+            },
+            songMetadata: {
+              connect: {
+                id: input.SongMetadataId,
+              },
+            },
+            imageMetadata: {
+              connect: {
+                id: input.ImageMetadataId,
+              },
+            },
+          },
+        });
       } catch (error) {
         console.log(error);
       }
@@ -36,11 +53,12 @@ export const uploadRouter = createTRPCRouter({
       z.object({
         name: z.string(),
         type: z.enum([FileType.AUDIO, FileType.IMAGE]),
+        format: z.enum(["mp3", "jpg", "m4a", "wav", "png", "jpeg"]),
       }),
     )
     .mutation(async ({ ctx, input }) => {
       try {
-        const metaData = await ctx.prisma.filMetadata.create({
+        const metaData = await ctx.prisma.fileMetadata.create({
           data: {
             name: input.name,
             type: input.type,
@@ -52,53 +70,22 @@ export const uploadRouter = createTRPCRouter({
           },
         });
 
-        const extention = input.type === FileType.AUDIO ? "mp3" : "jpg";
-        const Key = `${ctx?.userId}/${metaData.id}.${
-          input.type === FileType.AUDIO ? "mp3" : "jpg"
-        }`;
+        const Key = `${input.type}/${ctx?.userId}/${metaData.id}.${input.format}`;
 
         const url = s3.getSignedUrl("putObject", {
           Bucket: process.env.S3_BUCKET_NAME,
           Key: Key,
           Expires: 60,
-          ContentType: `${input.type.toLowerCase()}/${extention}`,
+          ContentType: `${input.type.toLowerCase()}/${input.format}`,
         });
 
         return {
           url,
-          type: `${input.type.toLowerCase()}/${extention}`,
+          type: `${input.type.toLowerCase()}/${input.format}`,
           key: Key,
-          metaData,
+          metaDataId: metaData.id,
+          resourceUrl: `https://${process.env.S3_BUCKET_NAME}.s3.amazonaws.com/${Key}`,
         };
-
-        // return new Promise((resolve, reject) => {
-        //   s3.createPresignedPost(
-        //     {
-        //       Bucket: process.env.S3_BUCKET_NAME,
-        //       Fields: {
-        //         key: Key,
-        //       },
-        //       Expires: 60,
-        //       Conditions: [
-        //         ["content-length-range", 0, 1048576 * 10], // up to 10 MB
-        //         { "content-type": `${input.type.toLowerCase()}/${extention}` },
-        //       ],
-        //     },
-        //     (err, signed) => {
-        //       if (err) {
-        //         console.log(err);
-        //         return reject(err);
-        //       }
-        //       return resolve({
-        //         url: signed.url,
-        //         type: `${input.type.toLowerCase()}/${extention}`,
-        //         key: Key,
-        //         metaData,
-        //         fields: signed.fields,
-        //       });
-        //     },
-        //   );
-        // });
       } catch (error) {
         console.log(error);
       }
