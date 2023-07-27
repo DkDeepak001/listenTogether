@@ -28,7 +28,18 @@ const Friends = () => {
         data={friends?.following}
         keyExtractor={({ followers }) => followers?.id.toString() ?? ""}
         renderItem={({ item }) => (
-          <View className="mt-5 flex flex-row items-center justify-between border-b border-gray-700 pb-3">
+          <Pressable
+            onPress={() =>
+              router.push({
+                pathname: `/friends/${item.followers?.id}`,
+                params: {
+                  id: item.followers?.id,
+                  name: item.followers?.display_name,
+                },
+              })
+            }
+            className="mt-5 flex flex-row items-center justify-between border-b border-gray-700 pb-3"
+          >
             <View className="flex flex-row items-center">
               <Image
                 source={{ uri: item.followers?.images }}
@@ -44,7 +55,7 @@ const Friends = () => {
                 </Text>
               </View>
             </View>
-          </View>
+          </Pressable>
         )}
       />
     </View>
