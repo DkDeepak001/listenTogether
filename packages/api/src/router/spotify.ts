@@ -39,15 +39,12 @@ export const spotifyRouter = createTRPCRouter({
     }
   }),
   topTracks: protectedProcedure.query(async ({ ctx }) => {
-    return await fetch(
-      `https://api.spotify.com/v1/me/top/tracks?limit=10&offset=1`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: "Bearer " + ctx.accessToken,
-        },
+    return await fetch(`https://api.spotify.com/v1/me/top/tracks`, {
+      method: "GET",
+      headers: {
+        Authorization: "Bearer " + ctx.accessToken,
       },
-    )
+    })
       .then((res) => res.json())
       .then((data): Promise<TrackResponse> => {
         return data as Promise<TrackResponse>;
@@ -57,15 +54,12 @@ export const spotifyRouter = createTRPCRouter({
       });
   }),
   topArtists: protectedProcedure.query(async ({ ctx }) => {
-    return await fetch(
-      `https://api.spotify.com/v1/me/top/artists?limit=10&offset=1`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: "Bearer " + ctx.accessToken,
-        },
+    return await fetch(`https://api.spotify.com/v1/me/top/artists`, {
+      method: "GET",
+      headers: {
+        Authorization: "Bearer " + ctx.accessToken,
       },
-    )
+    })
       .then((res) => res.json())
       .then((data): Promise<TopArtistsResponse> => {
         return data as Promise<TopArtistsResponse>;

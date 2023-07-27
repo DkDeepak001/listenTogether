@@ -5,7 +5,7 @@ import { type User } from "@acme/db";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { type TokenResponse } from "./types";
 
-const redirect_url = "https://listen-together-nextjs.vercel.app/api/spotify";
+const redirect_url = "listentogether://tabbar/home";
 
 export const userRouter = createTRPCRouter({
   getToken: publicProcedure
@@ -33,6 +33,7 @@ export const userRouter = createTRPCRouter({
       })
         .then((response) => response.json())
         .then((data): Promise<TokenResponse> => {
+          console.log(data, "data from getAccessToken");
           return data as Promise<TokenResponse>;
         })
         .catch((error) => {
@@ -94,7 +95,7 @@ export const userRouter = createTRPCRouter({
                 email: data.email,
                 refreshToken: input.refreshToken,
                 href: data.href,
-                images: "",
+                images: `https://api.dicebear.com/6.x/lorelei/svg?seed=${data.display_name.toLowerCase()}`,
                 product: data.product,
                 type: data.type,
                 uri: data.uri,

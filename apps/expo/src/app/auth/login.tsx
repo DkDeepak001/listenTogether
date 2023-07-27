@@ -22,20 +22,33 @@ const discovery = {
 };
 function Login() {
   const router = useRouter();
+  const { mutateAsync: getToken } = api.user.getToken.useMutation({});
   const { mutateAsync: createUser } = api.user.create.useMutation({
     onSuccess: async (variable) => {
-      console.log(variable, "variable");
       await AsyncStorage.setItem("user_id", variable?.id ?? "");
       router.push("/tabbar/home");
     },
   });
-  const { mutateAsync: getRefreshToken } =
-    api.user.getRefreshToken.useMutation();
+
   const [request, response, promptAsync] = useAuthRequest(
     {
-      responseType: ResponseType.Token,
+      responseType: ResponseType.Code,
+      extraParams: {
+        response_type: "code",
+      },
       clientId: "3fd0b855d9be4752bf7529976415a1d9",
-      scopes: scopes,
+      scopes: [
+        "user-read-email",
+        "user-read-private",
+        "user-top-read",
+        "playlist-read-private",
+        "playlist-read-collaborative",
+        "user-read-playback-state",
+        "user-modify-playback-state",
+        "user-read-currently-playing",
+        "user-modify-playback-state",
+        "user-read-recently-played",
+      ],
       usePKCE: false,
       redirectUri: makeRedirectUri({
         native: "listentogether://tabbar/home",
@@ -47,26 +60,21 @@ function Login() {
   React.useEffect(() => {
     console.log(response, "response");
     if (response?.type === "success") {
-      const { access_token } = response.params;
+      const { code } = response.params;
 
-      if (access_token) void setToken(access_token);
+      if (code) void getTokenByCode(code);
     }
   }, [response]);
 
-  const setToken = async (token: string) => {
+  const getTokenByCode = async (code: string) => {
     try {
-      console.log(token, "token");
+      const data = await getToken({ code });
 
-      const refreshToken = await getRefreshToken({
-        refresh_token: token,
-      });
-
-      await AsyncStorage.setItem("access_token", token);
-      await AsyncStorage.setItem("refresh_token", refreshToken?.refresh_token);
-
+      await AsyncStorage.setItem("refresh_token", data?.refresh_token ?? "");
+      await AsyncStorage.setItem("access_token", data?.access_token ?? "");
       await createUser({
-        accessToken: token,
-        refreshToken: refreshToken.refresh_token,
+        accessToken: data?.access_token,
+        refreshToken: data?.refresh_token,
       });
     } catch (error) {
       console.log(error, "error");
