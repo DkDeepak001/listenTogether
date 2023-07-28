@@ -49,6 +49,7 @@ const Notification = () => {
       void context.user.notification.cancel();
       void context.user.notification.invalidate();
       void context.spotify.self.invalidate();
+      void context.friend.invalidate();
     },
   });
 

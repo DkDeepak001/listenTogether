@@ -125,6 +125,16 @@ export const friendsRouter = createTRPCRouter({
           return following.followersId === input.friendId;
         });
 
+        if (isFollowing) {
+          await ctx.prisma.chatChannel.create({
+            data: {
+              user: {
+                connect: [{ id: ctx.userId }, { id: input.friendId }],
+              },
+            },
+          });
+        }
+
         return await ctx.prisma.$transaction([
           ctx.prisma.requestLog.updateMany({
             where: {
@@ -172,7 +182,7 @@ export const friendsRouter = createTRPCRouter({
         console.log(e);
       }
     }),
-  following: protectedProcedure
+  channel: protectedProcedure
     .input(
       z.object({
         q: z.string().toLowerCase().optional(),
@@ -180,32 +190,32 @@ export const friendsRouter = createTRPCRouter({
     )
     .query(async ({ ctx, input }) => {
       try {
-        return await ctx.prisma.user.findUnique({
+        const channel = await ctx.prisma.user.findUnique({
           where: {
             id: ctx.userId,
           },
           select: {
-            following: {
-              where: {
-                followers: {
-                  display_name: {
-                    contains: input.q ?? undefined,
-                  },
-                },
-              },
+            chatChannel: {
               select: {
-                followers: {
+                id: true,
+                user: {
                   select: {
                     id: true,
                     display_name: true,
                     images: true,
-                    href: true,
-                    spotifyId: true,
                   },
                 },
               },
             },
           },
+        });
+        return channel?.chatChannel.map((channel) => {
+          return {
+            channel: channel.id,
+            user: channel.user.filter((user) => {
+              return user.id !== ctx.userId;
+            })[0],
+          };
         });
       } catch (e) {
         console.log(e);

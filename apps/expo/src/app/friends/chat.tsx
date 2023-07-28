@@ -4,6 +4,7 @@ import { useLocalSearchParams, useNavigation } from "expo-router";
 
 const ChatPage = () => {
   const query = useLocalSearchParams();
+  console.log(query);
   const navigation = useNavigation();
   useLayoutEffect(() => {
     navigation.setOptions({

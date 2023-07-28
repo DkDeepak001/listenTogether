@@ -31,6 +31,7 @@ model User {
   uri               String
   refreshToken      String
 
+  chatChannel       chatChannel[]
   requestFrom      RequestLog[] @relation("requestFrom")
   requestTo         RequestLog[] @relation("requestTo")
   followers        Friends[] @relation("followers")
@@ -105,4 +106,12 @@ model Song{
   SongMetadataId String
   songMetadata FileMetadata @relation("song",fields: [SongMetadataId], references: [id])
 
+}
+
+
+model chatChannel{
+  id String @id @default(cuid()) 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user User[] 
 }

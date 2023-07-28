@@ -9,7 +9,7 @@ import SearchBar from "~/components/search/searchBar";
 const Friends = () => {
   const [q, setQ] = useState<string>("");
   const router = useRouter();
-  const { data: friends, isLoading } = api.friend.following.useQuery({ q });
+  const { data: channel, isLoading } = api.friend.channel.useQuery({ q });
   return (
     <View className=" flex-1 flex-col bg-black p-5">
       <View className="bg-black">
@@ -25,16 +25,17 @@ const Friends = () => {
         <SearchBar q={q} setQ={(val: string) => setQ(val)} />
       </View>
       <FlatList
-        data={friends?.following}
-        keyExtractor={({ followers }) => followers?.id.toString() ?? ""}
+        data={channel}
+        keyExtractor={({ channel }) => channel.toString() ?? ""}
         renderItem={({ item }) => (
           <Pressable
             onPress={() =>
               router.push({
-                pathname: `/friends/${item.followers?.id}`,
+                pathname: `/friends/chat`,
                 params: {
-                  id: item.followers?.id,
-                  name: item.followers?.display_name,
+                  id: item.user?.id,
+                  channel: item.channel,
+                  name: item.user?.display_name,
                 },
               })
             }
@@ -42,16 +43,16 @@ const Friends = () => {
           >
             <View className="flex flex-row items-center">
               <Image
-                source={{ uri: item.followers?.images }}
+                source={{ uri: item.user?.images }}
                 className="h-12 w-12 rounded-full bg-gray-800"
                 alt="profile"
               />
               <View className="ml-5">
                 <Text className="text-sm font-semibold text-white">
-                  {item.followers?.display_name}
+                  {item.user?.display_name}
                 </Text>
                 <Text className="text-xs font-semibold text-gray-400">
-                  {item.followers?.spotifyId}
+                  {item.user?.id}
                 </Text>
               </View>
             </View>
