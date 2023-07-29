@@ -18,6 +18,7 @@ const ChatPage = () => {
   const [messageText, setMessageText] = useState<string>("");
   const [messages, setMessages] = useState<Array<string>>([]);
 
+  const context = api.useContext();
   const { data: allMessage } = api.channel.allMessages.useQuery({
     channelId: query.channel as string,
   });
@@ -41,7 +42,27 @@ const ChatPage = () => {
           onEvent: (event: PusherEvent) => {
             console.log(`Event received: ${event}`);
             if (event.eventName === "message") {
-              setMessages((prev) => [...prev, event.data as string]);
+              console.log("message recived", event.data);
+              context.channel.allMessages.setData(
+                { channelId: query.channel as string },
+                (old) => {
+                  return {
+                    ...old,
+                    chatMessage: [
+                      ...old?.chatMessage,
+                      {
+                        id: "temp",
+                        message: event.data,
+                        sender: {
+                          display_name: query.name,
+                          id: "temp",
+                        },
+                      },
+                    ],
+                  };
+                },
+              );
+              context.channel.allMessages.invalidate();
             }
           },
           onSubscriptionSucceeded: (members: PusherMember[]) => {
