@@ -1,3 +1,4 @@
+import { channelRouter } from "./router/channel";
 import { friendsRouter } from "./router/friends";
 import { playerRouter } from "./router/player";
 import { spotifyRouter } from "./router/spotify";
@@ -11,6 +12,7 @@ export const appRouter = createTRPCRouter({
   friend: friendsRouter,
   player: playerRouter,
   upload: uploadRouter,
+  channel: channelRouter,
 });
 
 // export type definition of API

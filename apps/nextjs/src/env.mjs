@@ -8,6 +8,8 @@ export const env = createEnv({
    */
   server: {
     DATABASE_URL: z.string().url(),
+    PUSHER_API_KEY: z.string(),
+    PUSHER_CLUSTER: z.string(),
   },
   /**
    * Specify your client-side environment variables schema here.
@@ -21,6 +23,8 @@ export const env = createEnv({
    */
   runtimeEnv: {
     DATABASE_URL: process.env.DATABASE_URL,
+    PUSHER_API_KEY: process.env.PUSHER_API_KEY,
+    PUSHER_CLUSTER: process.env.PUSHER_CLUSTER,
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },
   skipValidation: !!process.env.CI || !!process.env.SKIP_ENV_VALIDATION,

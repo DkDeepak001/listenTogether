@@ -88,6 +88,12 @@ export const userRouter = createTRPCRouter({
         })
           .then((res) => res.json())
           .then(async (data: User): Promise<User> => {
+            const alreadyExists = await ctx.prisma.user.findUnique({
+              where: {
+                spotifyId: data.id,
+              },
+            });
+            if (alreadyExists) return alreadyExists;
             return await ctx.prisma.user.create({
               data: {
                 country: data.country,

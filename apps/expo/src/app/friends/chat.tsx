@@ -1,11 +1,15 @@
-import React, { useLayoutEffect } from "react";
-import { Text, View } from "react-native";
+import React, { useEffect, useLayoutEffect } from "react";
+import { Pressable, Text, View } from "react-native";
 import { useLocalSearchParams, useNavigation } from "expo-router";
+
+import { api } from "~/utils/api";
+import pusherClient from "~/utils/pusher";
 
 const ChatPage = () => {
   const query = useLocalSearchParams();
-  console.log(query);
   const navigation = useNavigation();
+
+  const { mutateAsync: sendMessage } = api.channel.trigger.useMutation();
   useLayoutEffect(() => {
     navigation.setOptions({
       headerShown: true,
@@ -17,9 +21,54 @@ const ChatPage = () => {
     });
   }, []);
 
+  useEffect(() => {
+    const chanel = pusherClient.subscribe({
+      channelName: `private-${query?.channel}`,
+      onEvent: (event) => {
+        console.log("event subscribe", event);
+      },
+    });
+
+    chanel.bind(`connected`, () => {
+      console.log("event Bind", event);
+    });
+
+    return () => {
+      pusherClient
+        .unsubscribe({
+          channelName: `private-${query?.channel}`,
+        })
+        .then(() => {
+          console.log("Unsubscribed successfully");
+        })
+        .catch((e) => {
+          console.log("Error unsubscribing: ", e);
+        });
+    };
+  }, []);
+
+  const handleSentMessage = async () => {
+    console.log("handleSentMessage");
+    try {
+      const response = await sendMessage({
+        channelId: `private-${query?.channel}`,
+        message: "Hello world",
+      });
+      console.log("response", response);
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+
   return (
-    <View className=" flex-1 flex-col bg-black p-5">
+    <View className=" flex flex-1 flex-col items-center justify-center bg-black p-5">
       <Text className="text-white">ChatPage</Text>
+      <Pressable
+        onPress={() => handleSentMessage()}
+        className="rounded-md bg-blue-500 p-5"
+      >
+        <Text className="text-white">Send Message</Text>
+      </Pressable>
     </View>
   );
 };
