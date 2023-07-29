@@ -25,6 +25,7 @@ function Login() {
   const { mutateAsync: getToken } = api.user.getToken.useMutation({});
   const { mutateAsync: createUser } = api.user.create.useMutation({
     onSuccess: async (variable) => {
+      console.log(variable, "variable OnSuccess");
       await AsyncStorage.setItem("user_id", variable?.id ?? "");
       router.push("/tabbar/home");
     },

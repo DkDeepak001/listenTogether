@@ -1,12 +1,12 @@
-import { Pusher } from "@pusher/pusher-websocket-react-native";
+// import { Pusher } from "@pusher/pusher-websocket-react-native";
 
-const pusher = Pusher.getInstance();
+// const pusher = Pusher.getInstance();
 
-await pusher.init({
-  apiKey: process.env.PUSHER_API_KEY!,
-  cluster: process.env.PUSHER_CLUSTER!,
-});
+// await pusher.init({
+//   apiKey: "dd1093eea2ad5e19bb9f",
+//   cluster: "ap2",
+// });
 
-const pusherClient = await pusher.connect().then((client): Pusher => client);
+// const pusherClient = await pusher.connect().then((client): Pusher => client);
 
-export default pusherClient;
+// export default pusherClient;

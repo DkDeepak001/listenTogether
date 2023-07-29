@@ -9,10 +9,15 @@ export const channelRouter = createTRPCRouter({
       z.object({
         channelId: z.string(),
         message: z.string(),
+        event: z.string(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      await pusherServer.trigger(input.channelId, "connected", input.message);
-      return;
+      console.log("trigger", input);
+      return await pusherServer.trigger(
+        input.channelId,
+        input.event,
+        input.message,
+      );
     }),
 });

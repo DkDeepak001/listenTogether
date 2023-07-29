@@ -1,13 +1,22 @@
-import React, { useEffect, useLayoutEffect } from "react";
-import { Pressable, Text, View } from "react-native";
+import React, { useEffect, useLayoutEffect, useState } from "react";
+import { FlatList, Pressable, Text, TextInput, View } from "react-native";
 import { useLocalSearchParams, useNavigation } from "expo-router";
+import {
+  Pusher,
+  type PusherEvent,
+  type PusherMember,
+} from "@pusher/pusher-websocket-react-native";
 
 import { api } from "~/utils/api";
-import pusherClient from "~/utils/pusher";
+
+// import pusherClient from "~/utils/pusher";
 
 const ChatPage = () => {
   const query = useLocalSearchParams();
   const navigation = useNavigation();
+
+  const [messageText, setMessageText] = useState<string>("");
+  const [messages, setMessages] = useState<Array<string>>([]);
 
   const { mutateAsync: sendMessage } = api.channel.trigger.useMutation();
   useLayoutEffect(() => {
@@ -21,29 +30,60 @@ const ChatPage = () => {
     });
   }, []);
 
+  let PusherMain: Pusher | null = null;
+
   useEffect(() => {
-    const chanel = pusherClient.subscribe({
-      channelName: `private-${query?.channel}`,
-      onEvent: (event) => {
-        console.log("event subscribe", event);
-      },
-    });
-
-    chanel.bind(`connected`, () => {
-      console.log("event Bind", event);
-    });
-
-    return () => {
-      pusherClient
-        .unsubscribe({
-          channelName: `private-${query?.channel}`,
-        })
-        .then(() => {
-          console.log("Unsubscribed successfully");
-        })
-        .catch((e) => {
-          console.log("Error unsubscribing: ", e);
+    const PusherInit = async () => {
+      const pusher: Pusher = Pusher.getInstance();
+      try {
+        await pusher.init({
+          apiKey: "dd1093eea2ad5e19bb9f",
+          cluster: "ap2",
         });
+
+        await pusher.connect();
+
+        await pusher.subscribe({
+          channelName: `public-${query?.channel}`,
+          onEvent: (event: PusherEvent) => {
+            console.log(`Event received: ${event}`);
+            if (event.eventName === "message") {
+              console.log("Message received");
+              console.log("event.data", event.data);
+              setMessages((prev) => [...prev, event.data as string]);
+            }
+          },
+          onSubscriptionSucceeded: (members: PusherMember[]) => {
+            console.log(`Subscription succeeded: ${JSON.stringify(members)}`);
+          },
+          onMemberAdded(member) {
+            console.log(`Member added: ${JSON.stringify(member)}`);
+          },
+          onMemberRemoved(member) {
+            console.log(`Member removed: ${JSON.stringify(member)}`);
+          },
+          onSubscriptionError: (status) => {
+            console.log(`Error: ${JSON.stringify(status)}`);
+          },
+        });
+
+        PusherMain = pusher; // Store the channel reference for cleanup
+      } catch (e) {
+        console.log(`ERROR: ${e}`);
+      }
+    };
+
+    PusherInit();
+
+    return async () => {
+      // Clean up function: Unsubscribe and disconnect Pusher channel
+      console.log("Unsubscribing and disconnecting Pusher channel");
+      if (PusherMain) {
+        await PusherMain.unsubscribe({
+          channelName: `public-${query?.channel}`,
+        });
+        await PusherMain.disconnect();
+      }
     };
   }, []);
 
@@ -51,8 +91,9 @@ const ChatPage = () => {
     console.log("handleSentMessage");
     try {
       const response = await sendMessage({
-        channelId: `private-${query?.channel}`,
-        message: "Hello world",
+        channelId: `public-${query?.channel}`,
+        message: messageText,
+        event: "message",
       });
       console.log("response", response);
     } catch (error) {
@@ -63,12 +104,23 @@ const ChatPage = () => {
   return (
     <View className=" flex flex-1 flex-col items-center justify-center bg-black p-5">
       <Text className="text-white">ChatPage</Text>
+      <FlatList
+        data={messages}
+        renderItem={({ item }) => <Text className="text-white">{item}</Text>}
+        keyExtractor={(item) => item}
+      />
+
       <Pressable
         onPress={() => handleSentMessage()}
         className="rounded-md bg-blue-500 p-5"
       >
         <Text className="text-white">Send Message</Text>
       </Pressable>
+      <TextInput
+        className="mt-5 w-full rounded-lg bg-gray-500 px-2 py-2 text-white"
+        value={messageText}
+        onChangeText={(text) => setMessageText(text)}
+      />
     </View>
   );
 };
