@@ -4,7 +4,7 @@ import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { pusherServer } from "./utils";
 
 export const channelRouter = createTRPCRouter({
-  trigger: protectedProcedure
+  sendMessage: protectedProcedure
     .input(
       z.object({
         channelId: z.string(),
@@ -13,10 +13,21 @@ export const channelRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      return await pusherServer.trigger(
-        input.channelId,
-        input.event,
-        input.message,
-      );
+      await pusherServer.trigger(input.channelId, input.event, input.message);
+      return await ctx.prisma.chatMessage.create({
+        data: {
+          message: input.message,
+          chatChannel: {
+            connect: {
+              id: input.channelId,
+            },
+          },
+          sender: {
+            connect: {
+              id: ctx.userId,
+            },
+          },
+        },
+      });
     }),
 });

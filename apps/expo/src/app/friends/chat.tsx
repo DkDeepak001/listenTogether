@@ -2,7 +2,6 @@ import React, { useEffect, useLayoutEffect, useState } from "react";
 import { FlatList, Pressable, Text, TextInput, View } from "react-native";
 import { useLocalSearchParams, useNavigation } from "expo-router";
 import {
-  Pusher,
   type PusherEvent,
   type PusherMember,
 } from "@pusher/pusher-websocket-react-native";
@@ -19,7 +18,7 @@ const ChatPage = () => {
   const [messageText, setMessageText] = useState<string>("");
   const [messages, setMessages] = useState<Array<string>>([]);
 
-  const { mutateAsync: sendMessage } = api.channel.trigger.useMutation();
+  const { mutateAsync: sendMessage } = api.channel.sendMessage.useMutation();
   useLayoutEffect(() => {
     navigation.setOptions({
       headerShown: true,

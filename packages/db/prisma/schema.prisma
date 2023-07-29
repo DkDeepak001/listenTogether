@@ -36,6 +36,7 @@ model User {
   requestTo         RequestLog[] @relation("requestTo")
   followers        Friends[] @relation("followers")
   following        Friends[] @relation("following")
+  sentMessages      chatMessage[] 
   fileMetadata      FileMetadata[]
   song              Song[]
 
@@ -114,4 +115,16 @@ model chatChannel{
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   user User[] 
+  chatMessage chatMessage[]
+}
+
+model chatMessage{
+  id String @id @default(cuid()) 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  senderId String
+  sender User @relation(fields: [senderId], references: [id])
+  message String
+  chatChannelId String
+  chatChannel chatChannel @relation(fields: [chatChannelId], references: [id])
 }
