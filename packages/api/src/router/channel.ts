@@ -13,7 +13,11 @@ export const channelRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      await pusherServer.trigger(input.channelId, input.event, input.message);
+      await pusherServer.trigger(
+        `public-${input.channelId}`,
+        input.event,
+        input.message,
+      );
       return await ctx.prisma.chatMessage.create({
         data: {
           message: input.message,

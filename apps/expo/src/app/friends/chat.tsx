@@ -75,7 +75,7 @@ const ChatPage = () => {
   const handleSentMessage = async () => {
     try {
       const response = await sendMessage({
-        channelId: `public-${query?.channel}`,
+        channelId: `${query?.channel}`,
         message: messageText,
         event: "message",
       });
