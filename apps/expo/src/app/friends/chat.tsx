@@ -18,6 +18,9 @@ const ChatPage = () => {
   const [messageText, setMessageText] = useState<string>("");
   const [messages, setMessages] = useState<Array<string>>([]);
 
+  const { data: allMessage } = api.channel.allMessages.useQuery({
+    channelId: query.channel as string,
+  });
   const { mutateAsync: sendMessage } = api.channel.sendMessage.useMutation();
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -89,9 +92,13 @@ const ChatPage = () => {
     <View className=" flex flex-1 flex-col items-center justify-center bg-black p-5">
       <Text className="text-white">ChatPage</Text>
       <FlatList
-        data={messages}
-        renderItem={({ item }) => <Text className="text-white">{item}</Text>}
-        keyExtractor={(item) => item}
+        data={allMessage?.chatMessage}
+        renderItem={({ item }) => (
+          <Text className="text-white">
+            {item.sender.display_name} :{item.message}
+          </Text>
+        )}
+        keyExtractor={(item) => item.id}
       />
 
       <Pressable

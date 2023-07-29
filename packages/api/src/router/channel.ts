@@ -34,4 +34,29 @@ export const channelRouter = createTRPCRouter({
         },
       });
     }),
+  allMessages: protectedProcedure
+    .input(z.object({ channelId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      return await ctx.prisma.chatChannel.findUnique({
+        where: {
+          id: input.channelId,
+        },
+        select: {
+          id: true,
+          createdAt: true,
+          chatMessage: {
+            select: {
+              id: true,
+              message: true,
+              sender: {
+                select: {
+                  id: true,
+                  display_name: true,
+                },
+              },
+            },
+          },
+        },
+      });
+    }),
 });
