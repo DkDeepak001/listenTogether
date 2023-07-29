@@ -13,7 +13,6 @@ export const channelRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      console.log("trigger", input);
       return await pusherServer.trigger(
         input.channelId,
         input.event,

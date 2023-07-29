@@ -8,6 +8,7 @@ import {
 } from "@pusher/pusher-websocket-react-native";
 
 import { api } from "~/utils/api";
+import pusher from "~/utils/pusher";
 
 // import pusherClient from "~/utils/pusher";
 
@@ -30,26 +31,14 @@ const ChatPage = () => {
     });
   }, []);
 
-  let PusherMain: Pusher | null = null;
-
   useEffect(() => {
     const PusherInit = async () => {
-      const pusher: Pusher = Pusher.getInstance();
       try {
-        await pusher.init({
-          apiKey: "dd1093eea2ad5e19bb9f",
-          cluster: "ap2",
-        });
-
-        await pusher.connect();
-
         await pusher.subscribe({
           channelName: `public-${query?.channel}`,
           onEvent: (event: PusherEvent) => {
             console.log(`Event received: ${event}`);
             if (event.eventName === "message") {
-              console.log("Message received");
-              console.log("event.data", event.data);
               setMessages((prev) => [...prev, event.data as string]);
             }
           },
@@ -66,8 +55,6 @@ const ChatPage = () => {
             console.log(`Error: ${JSON.stringify(status)}`);
           },
         });
-
-        PusherMain = pusher; // Store the channel reference for cleanup
       } catch (e) {
         console.log(`ERROR: ${e}`);
       }
@@ -78,17 +65,15 @@ const ChatPage = () => {
     return async () => {
       // Clean up function: Unsubscribe and disconnect Pusher channel
       console.log("Unsubscribing and disconnecting Pusher channel");
-      if (PusherMain) {
-        await PusherMain.unsubscribe({
+      if (pusher) {
+        await pusher.unsubscribe({
           channelName: `public-${query?.channel}`,
         });
-        await PusherMain.disconnect();
       }
     };
   }, []);
 
   const handleSentMessage = async () => {
-    console.log("handleSentMessage");
     try {
       const response = await sendMessage({
         channelId: `public-${query?.channel}`,
