@@ -6,6 +6,7 @@ import { useRouter } from "expo-router";
 import { type BottomTabBarProps } from "@react-navigation/bottom-tabs";
 
 import { type api } from "~/utils/api";
+import useAudio from "~/hooks/useAudio";
 import friends from "../../../assets/tabbar/friends.svg";
 import home from "../../../assets/tabbar/home.svg";
 import playlist from "../../../assets/tabbar/playlist.svg";
@@ -13,14 +14,11 @@ import search from "../../../assets/tabbar/search.svg";
 import upload from "../../../assets/tabbar/upload.svg";
 import Miniplayer from "../player/miniplayer";
 
-type AppTabBarProps = BottomTabBarProps & {
-  player?: ReturnType<
-    ReturnType<typeof api.useContext>["player"]["getPlayBackState"]["getData"]
-  >;
-};
-
-const AppTabBar = ({ state, player }: AppTabBarProps) => {
+type AppTabBarProps = BottomTabBarProps;
+const AppTabBar = ({ state }: AppTabBarProps) => {
   const router = useRouter();
+
+  const { isPlaying, currentTrack } = useAudio();
 
   const handlePress = (url: string) => {
     void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -29,12 +27,13 @@ const AppTabBar = ({ state, player }: AppTabBarProps) => {
 
   return (
     <SafeAreaView className="bg-black">
-      {/* {player?.item && (
+      {isPlaying && (
         <Miniplayer
-          player={player}
+          currentTrack={currentTrack}
+          // player={player}
           pressableProps={{ onPress: () => router.push("/player/full") }}
         />
-      )} */}
+      )}
 
       <View className="flex-row items-center justify-between bg-black/95 px-4 py-3">
         <Pressable
