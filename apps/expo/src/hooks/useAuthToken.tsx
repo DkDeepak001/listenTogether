@@ -28,6 +28,7 @@ const useAuthToken = () => {
   };
 
   const fetchToken = async (callback: () => void) => {
+    console.log("fetchToken from useAuthToken----------------------------");
     const refreshToken = await AsyncStorage.getItem("refresh_token");
     const newToken = await getNewToken({ refresh_token: refreshToken ?? "" });
     console.log(

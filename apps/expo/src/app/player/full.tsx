@@ -1,13 +1,16 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Pressable, Text, ToastAndroid, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { type AVPlaybackStatus, type AVPlaybackStatusSuccess } from "expo-av";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import Slider from "@react-native-community/slider";
 
 import { api } from "~/utils/api";
+import { formatDuration } from "~/utils/convertMillSecond";
 import useAudio from "~/hooks/useAudio";
 import usePlayer from "~/hooks/usePlayer";
+import { useSongStore } from "~/store/player";
 import downArrow from "../../../assets/player/downArrow.svg";
 import next from "../../../assets/player/next.svg";
 import pause from "../../../assets/player/pause.svg";
@@ -18,8 +21,31 @@ const FullPlayer = () => {
   // const { player, playPercent, formattedEndduration, formattedStartingTime } =
   //   usePlayer();
 
-  const { currentTrack, isPlaying, handlePlay, pauseSong, isPaused } =
-    useAudio();
+  const {
+    currentTrack,
+    isPlaying,
+    handlePlay,
+    pauseSong,
+    isPaused,
+    currentSound,
+  } = useAudio();
+  const { totalDuration, currentDuration } = useSongStore();
+  const [status, setStatus] = useState<AVPlaybackStatus | null>(null);
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    const updateCurrentDuration = async () => {
+      if (isPlaying && currentSound) {
+        const status: AVPlaybackStatus = await currentSound.getStatusAsync();
+        setStatus(status);
+      } else {
+        clearInterval(interval);
+      }
+    };
+
+    interval = setInterval(updateCurrentDuration, 500);
+
+    return () => clearInterval(interval);
+  }, [isPlaying, currentSound]);
   const context = api.useContext();
   const user = context.spotify.self.getData();
   // const { mutateAsync: pauseSong } = api.player.pauseSong.useMutation();
@@ -66,21 +92,21 @@ const FullPlayer = () => {
   };
 
   const handleNextSong = async () => {
-    if (user?.product === "free")
-      ToastAndroid.show(
-        "You need to have a premium account to use this feature",
-        ToastAndroid.SHORT,
-      );
-    else await nextSong({ device_id: player.device.id });
+    // if (user?.product === "free")
+    //   ToastAndroid.show(
+    //     "You need to have a premium account to use this feature",
+    //     ToastAndroid.SHORT,
+    //   );
+    // else await nextSong({ device_id: player.device.id });
   };
 
   const handlePrevSong = async () => {
-    if (user?.product === "free")
-      ToastAndroid.show(
-        "You need to have a premium account to use this feature",
-        ToastAndroid.SHORT,
-      );
-    else await prevSong({ device_id: player.device.id });
+    // if (user?.product === "free")
+    //   ToastAndroid.show(
+    //     "You need to have a premium account to use this feature",
+    //     ToastAndroid.SHORT,
+    //   );
+    // else await prevSong({ device_id: player.device.id });
   };
 
   return (
@@ -121,7 +147,7 @@ const FullPlayer = () => {
             onPress={() => void handlePauseSong()}
           >
             <Image
-              source={isPaused ? pause : resume}
+              source={isPaused ? resume : pause}
               className="h-8 w-8 "
               alt="pause"
             />
@@ -135,7 +161,7 @@ const FullPlayer = () => {
         </View>
         <View className="mt-8  w-11/12 ">
           <Text className=" absolute -top-2 left-5  text-xs text-white">
-            {/* {formattedStartingTime} */}
+            {formatDuration(status?.positionMillis || 0)}
           </Text>
           <Slider
             style={{ width: "100%", height: 50 }}
@@ -148,7 +174,7 @@ const FullPlayer = () => {
             thumbTintColor="#FFFFFF"
           />
           <Text className=" absolute -top-2  right-5 text-xs text-white">
-            {/* {formattedEndduration ?? `0:00`} */}
+            {formatDuration(totalDuration) ?? `0:00`}
           </Text>
         </View>
       </View>

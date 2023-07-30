@@ -77,7 +77,7 @@ const Search = () => {
                 </View>
                 <Pressable
                   className="  h-8  w-8  items-center justify-center rounded-full bg-blue-800"
-                  onPress={() => void handlePlay(item)}
+                  onPress={() => void handlePlay(item, "SPOTIFY")}
                 >
                   <Image
                     className="h-4 w-4 rounded-full bg-blue-800"

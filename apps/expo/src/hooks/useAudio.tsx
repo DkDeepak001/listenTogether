@@ -1,9 +1,11 @@
+import { useEffect, useState } from "react";
 import { ToastAndroid } from "react-native";
-import { Audio } from "expo-av";
+import { Audio, type AVPlaybackStatus } from "expo-av";
 
 import { type Track } from "@acme/api/src/router/types";
 
 import { useAudioStore } from "~/store/audio";
+import { useSongStore } from "~/store/player";
 
 const useAudio = () => {
   const {
@@ -17,8 +19,37 @@ const useAudio = () => {
     setIsPaused,
   } = useAudioStore();
 
-  const handlePlay = async (item: Track) => {
+  const {
+    setTotalDuration,
+    setType,
+    type: songType,
+    currentDuration,
+    setCurrentDuration,
+  } = useSongStore();
+
+  // const [currentDuration, setCurrentDuration] = useState<number>(0);
+
+  // Update the current duration every second when the song is playing
+  // useEffect(() => {
+  //   let interval: NodeJS.Timeout;
+  //   const updateCurrentDuration = async () => {
+  //     if (isPlaying && currentSound) {
+  //       const status: AVPlaybackStatus = await currentSound.getStatusAsync();
+  //       setCurrentDuration(status.positionMillis || 0);
+  //     } else {
+  //       clearInterval(interval);
+  //     }
+  //   };
+
+  //   interval = setInterval(updateCurrentDuration, 500);
+
+  //   return () => clearInterval(interval);
+  // }, [isPlaying, currentSound]);
+
+  const handlePlay = async (item: Track, type: typeof songType) => {
     try {
+      setType(type);
+      if (type === "SPOTIFY") setTotalDuration(30000);
       if (currentTrack === item && isPlaying) {
         await currentSound?.pauseAsync();
         setIsPlaying(false);
@@ -54,6 +85,8 @@ const useAudio = () => {
         ToastAndroid.BOTTOM,
       );
       setCurrentSound(sound);
+      setCurrentDuration(0); // Reset the current duration when starting a new song
+
       setIsPlaying(status.isLoaded);
       await sound.playAsync();
     } catch (error) {
@@ -79,14 +112,17 @@ const useAudio = () => {
     isPlaying,
     isPaused,
     currentTrack,
-
     pauseSong,
+    currentDuration,
+    currentSound,
   } as {
-    handlePlay: (item: Track) => void;
+    handlePlay: (item: Track, type: typeof songType) => void;
     isPlaying: boolean;
     isPaused: boolean;
     currentTrack: Track | null;
     pauseSong: () => void;
+    currentDuration: number;
+    currentSound: Audio.Sound | null;
   };
 };
 
