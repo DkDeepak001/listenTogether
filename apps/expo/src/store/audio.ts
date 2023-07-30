@@ -10,6 +10,8 @@ interface AudioState {
   setCurrentSound: (currentSound: Audio.Sound | null) => void;
   currentTrack: Track | null;
   setCurrentTrack: (currentTrack: Track | null) => void;
+  isPaused: boolean;
+  setIsPaused: (isPaused: boolean) => void;
 }
 
 export const useAudioStore = create<AudioState>((set) => ({
@@ -19,4 +21,6 @@ export const useAudioStore = create<AudioState>((set) => ({
   setCurrentSound: (currentSound: Audio.Sound | null) => set({ currentSound }),
   currentTrack: null,
   setCurrentTrack: (currentTrack: Track | null) => set({ currentTrack }),
+  isPaused: false,
+  setIsPaused: (isPaused: boolean) => set({ isPaused }),
 }));

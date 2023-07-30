@@ -6,6 +6,7 @@ import { useRouter } from "expo-router";
 import Slider from "@react-native-community/slider";
 
 import { api } from "~/utils/api";
+import useAudio from "~/hooks/useAudio";
 import usePlayer from "~/hooks/usePlayer";
 import downArrow from "../../../assets/player/downArrow.svg";
 import next from "../../../assets/player/next.svg";
@@ -14,23 +15,25 @@ import resume from "../../../assets/player/resume.svg";
 
 const FullPlayer = () => {
   const router = useRouter();
-  const { player, playPercent, formattedEndduration, formattedStartingTime } =
-    usePlayer();
+  // const { player, playPercent, formattedEndduration, formattedStartingTime } =
+  //   usePlayer();
 
+  const { currentTrack, isPlaying, handlePlay, pauseSong, isPaused } =
+    useAudio();
   const context = api.useContext();
   const user = context.spotify.self.getData();
-  const { mutateAsync: pauseSong } = api.player.pauseSong.useMutation();
+  // const { mutateAsync: pauseSong } = api.player.pauseSong.useMutation();
   const { mutateAsync: playSong } = api.player.playSong.useMutation();
   const { mutateAsync: nextSong } = api.player.nextSong.useMutation();
   const { mutateAsync: prevSong } = api.player.prevSong.useMutation();
   const { mutateAsync: seekSong } = api.player.seekSong.useMutation();
 
-  if (!Number(playPercent)) return;
+  // if (!Number(playPercent)) return;
 
-  if (player.currently_playing_type === "ad") {
-    ToastAndroid.show("Playing ads is not supported", ToastAndroid.SHORT);
-    router.back();
-  }
+  // if (player.currently_playing_type === "ad") {
+  //   ToastAndroid.show("Playing ads is not supported", ToastAndroid.SHORT);
+  //   router.back();
+  // }
 
   const handleSeekSong = async (value: number) => {
     if (user?.product === "free")
@@ -47,18 +50,19 @@ const FullPlayer = () => {
   };
 
   const handlePauseSong = async () => {
-    if (user?.product === "free")
-      ToastAndroid.show(
-        "You need to have a premium account to use this feature",
-        ToastAndroid.SHORT,
-      );
-    else {
-      if (player.is_playing) {
-        await pauseSong({ device_id: player.device.id });
-      } else {
-        await playSong({ device_id: player.device.id });
-      }
-    }
+    pauseSong();
+    // if (user?.product === "free")
+    //   ToastAndroid.show(
+    //     "You need to have a premium account to use this feature",
+    //     ToastAndroid.SHORT,
+    //   );
+    // else {
+    //   if (player.is_playing) {
+    //     await pauseSong({ device_id: player.device.id });
+    //   } else {
+    //     await playSong({ device_id: player.device.id });
+    //   }
+    // }
   };
 
   const handleNextSong = async () => {
@@ -91,15 +95,15 @@ const FullPlayer = () => {
       </Pressable>
       <View className="mt-10 flex items-center">
         <Image
-          source={{ uri: player?.item?.album?.images[0]?.url }}
+          source={{ uri: currentTrack?.album?.images[0]?.url }}
           className="h-72 w-72  rounded-2xl"
-          alt={player?.item?.name}
+          alt={currentTrack?.name}
         />
         <Text className="mt-8 text-2xl font-bold text-white">
-          {player?.item?.name}
+          {currentTrack?.name}
         </Text>
         <Text className="mt-2 text-2xl font-bold text-white">
-          {player?.item?.album?.artists[0]?.name}
+          {currentTrack?.album?.artists[0]?.name}
         </Text>
         <View className="mt-8 flex flex-row items-center justify-center gap-x-5">
           <Pressable
@@ -117,7 +121,7 @@ const FullPlayer = () => {
             onPress={() => void handlePauseSong()}
           >
             <Image
-              source={player?.is_playing ? pause : resume}
+              source={isPaused ? pause : resume}
               className="h-8 w-8 "
               alt="pause"
             />
@@ -131,20 +135,20 @@ const FullPlayer = () => {
         </View>
         <View className="mt-8  w-11/12 ">
           <Text className=" absolute -top-2 left-5  text-xs text-white">
-            {formattedStartingTime}
+            {/* {formattedStartingTime} */}
           </Text>
           <Slider
             style={{ width: "100%", height: 50 }}
             minimumValue={0}
             maximumValue={100}
-            value={playPercent}
+            // value={playPercent}
             onSlidingComplete={(value) => void handleSeekSong(value)}
             minimumTrackTintColor="#FFFFFF"
             maximumTrackTintColor="#FFFFFF"
             thumbTintColor="#FFFFFF"
           />
           <Text className=" absolute -top-2  right-5 text-xs text-white">
-            {formattedEndduration ?? `0:00`}
+            {/* {formattedEndduration ?? `0:00`} */}
           </Text>
         </View>
       </View>

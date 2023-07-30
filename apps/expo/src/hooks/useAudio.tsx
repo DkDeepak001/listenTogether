@@ -13,6 +13,8 @@ const useAudio = () => {
     currentTrack,
     setCurrentTrack,
     setCurrentSound,
+    isPaused,
+    setIsPaused,
   } = useAudioStore();
 
   const handlePlay = async (item: Track) => {
@@ -54,20 +56,37 @@ const useAudio = () => {
       setCurrentSound(sound);
       setIsPlaying(status.isLoaded);
       await sound.playAsync();
-
-      await sound.playAsync();
     } catch (error) {
       console.log(error);
     }
   };
+
+  const pauseSong = async () => {
+    try {
+      if (currentSound) {
+        await currentSound.pauseAsync();
+        setIsPaused(true);
+        // setCurrentSound(null);
+        // setCurrentTrack(null);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return {
     handlePlay,
     isPlaying,
+    isPaused,
     currentTrack,
+
+    pauseSong,
   } as {
     handlePlay: (item: Track) => void;
     isPlaying: boolean;
+    isPaused: boolean;
     currentTrack: Track | null;
+    pauseSong: () => void;
   };
 };
 
