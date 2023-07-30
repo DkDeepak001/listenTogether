@@ -10,11 +10,6 @@ const useAuthToken = () => {
   const parm = usePathname();
 
   const { mutateAsync: getNewToken } = api.user.getRefreshToken.useMutation({});
-  const getRefreshToken = async () => {
-    const refresh_token = await AsyncStorage.getItem("refresh_token");
-
-    return refresh_token;
-  };
 
   useEffect(() => {
     void getAcessToken();
@@ -26,14 +21,14 @@ const useAuthToken = () => {
     console.log(
       access_token,
       refresh_token,
-      "from useAuthToken useEffect----------------------------",
+      "getAccess Token from useAuthToken useEffect----------------------------",
     );
     if (access_token) setToken(access_token);
     if (refresh_token) setRefreshToken(refresh_token);
   };
 
-  const fetchToken = async () => {
-    const refreshToken = await getRefreshToken();
+  const fetchToken = async (callback: () => void) => {
+    const refreshToken = await AsyncStorage.getItem("refresh_token");
     const newToken = await getNewToken({ refresh_token: refreshToken ?? "" });
     console.log(
       parm,
@@ -41,12 +36,17 @@ const useAuthToken = () => {
     );
     setToken(newToken.access_token ?? "");
     await AsyncStorage.setItem("access_token", newToken.access_token ?? "");
+    callback();
   };
 
   return {
     authToken: token,
     refreshToken: refreshToken,
     updateToken: fetchToken,
+  } as {
+    authToken: string;
+    refreshToken: string;
+    updateToken: (callback: () => void) => void;
   };
 };
 

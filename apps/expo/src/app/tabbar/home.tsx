@@ -17,7 +17,6 @@ const Home = () => {
   const router = useRouter();
   const [type, setType] = useState<TopType>("tracks");
   const { updateToken } = useAuthToken();
-  useRefreshOnFocus(updateToken);
 
   const { handlePlay, isPlaying, currentTrack } = useAudio();
   const { data: user, isLoading } = api.spotify.self.useQuery();
@@ -27,7 +26,6 @@ const Home = () => {
   const { data: topArtists, refetch: refetchTopArtist } =
     api.spotify.topArtists.useQuery();
 
-  if (isLoading || !user) return <Text>Loading...</Text>;
   // TODO add types to error
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
@@ -37,11 +35,11 @@ const Home = () => {
     // @ts-ignore
     if (topTracks?.error?.status === 401 || topArtists?.error?.status === 401) {
       console.log("updating token inside if");
-      updateToken();
-      refetchTopArtist();
-      refetchTopTracks();
+      void updateToken(() => void refetchTopTracks());
+      router.replace("/tabbar/home");
     }
   }
+  if (isLoading || !user) return <Text>Loading...</Text>;
 
   return (
     <View className=" flex-1  bg-black px-5 pt-5">
