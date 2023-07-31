@@ -1,10 +1,19 @@
+import { useEffect, useState } from "react";
 import { ToastAndroid } from "react-native";
-import { Audio } from "expo-av";
+import {
+  Audio,
+  type AVPlaybackStatus,
+  type AVPlaybackStatusSuccess,
+} from "expo-av";
+import { usePathname } from "expo-router";
 
 import { type Track } from "@acme/api/src/router/types";
 
+import { api } from "~/utils/api";
+import { shuffleArray } from "~/utils/shuffleArray";
 import { useAudioStore } from "~/store/audio";
 import { useSongStore } from "~/store/player";
+import { useQueueStore } from "~/store/queue";
 
 const useAudio = () => {
   const {
@@ -22,38 +31,50 @@ const useAudio = () => {
     setTotalDuration,
     setType,
     type: songType,
-    currentDuration,
-    setCurrentDuration,
+    totalDuration,
   } = useSongStore();
 
-  // const [currentDuration, setCurrentDuration] = useState<number>(0);
+  const { queue, setQueue } = useQueueStore();
+  const [currentDuration, setCurrentDuration] = useState(0);
 
-  // Update the current duration every second when the song is playing
-  // useEffect(() => {
-  //   let interval: NodeJS.Timeout;
-  //   const updateCurrentDuration = async () => {
-  //     if (isPlaying && currentSound) {
-  //       const status: AVPlaybackStatus = await currentSound.getStatusAsync();
-  //       setCurrentDuration(status.positionMillis || 0);
-  //     } else {
-  //       clearInterval(interval);
-  //     }
-  //   };
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+    const updateCurrentDuration = async () => {
+      if (isPlaying && currentSound && !isPaused) {
+        const status: AVPlaybackStatus =
+          (await currentSound?.getStatusAsync()) as AVPlaybackStatusSuccess;
+        setCurrentDuration(status.positionMillis);
+        if (status.positionMillis >= status.durationMillis!) {
+          console.log(status);
+          // await currentSound.unloadAsync();
+          await handleNextSong();
+        }
+      } else {
+        console.log("clearInterval");
+        clearInterval(interval as NodeJS.Timeout);
+      }
+    };
 
-  //   interval = setInterval(updateCurrentDuration, 500);
+    interval = setInterval(updateCurrentDuration, 900);
 
-  //   return () => clearInterval(interval);
-  // }, [isPlaying, currentSound]);
+    return () => clearInterval(interval as NodeJS.Timeout);
+  }, [currentSound]);
 
   const handlePlay = async (item: Track, type: typeof songType) => {
     try {
+      console.log("handleplay");
       setType(type);
-      if (type === "SPOTIFY") setTotalDuration(30000);
       if (currentTrack === item) {
         void pauseSong();
         return;
       }
-      if (currentTrack !== item) await currentSound?.unloadAsync();
+      if (currentTrack !== item) {
+        console.log("currentTrack !== item");
+        await currentSound?.unloadAsync();
+        setCurrentSound(null);
+        setCurrentTrack(null);
+        if (queue.length <= 0) await handleAddToQueue();
+      }
       setCurrentTrack(item);
 
       await Audio.setAudioModeAsync({
@@ -68,21 +89,25 @@ const useAudio = () => {
           ToastAndroid.SHORT,
           ToastAndroid.BOTTOM,
         );
-      const { sound, status } = await Audio.Sound.createAsync(
+      const { sound, status } = (await Audio.Sound.createAsync(
         {
           uri: item?.preview_url,
         },
         { isLooping: false, shouldPlay: true },
-      );
+      )) as {
+        sound: Audio.Sound;
+        status: AVPlaybackStatusSuccess;
+      };
       ToastAndroid.showWithGravity(
         `Playing Preview for 30 sec of ${item.name} `,
         ToastAndroid.SHORT,
         ToastAndroid.BOTTOM,
       );
+
       setCurrentSound(sound);
-      setCurrentDuration(0); // Reset the current duration when starting a new song
       setCurrentTrack(item);
       setIsPlaying(status.isLoaded);
+      setTotalDuration(status.durationMillis as number);
       await sound.playAsync();
     } catch (error) {
       console.log(error);
@@ -99,8 +124,32 @@ const useAudio = () => {
           await currentSound.playAsync();
           setIsPaused(false);
         }
-        // setCurrentSound(null);
-        // setCurrentTrack(null);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const path = usePathname();
+  const context = api.useContext();
+
+  const handleAddToQueue = async () => {
+    if (path === "/tabbar/home") {
+      const songs = context.spotify.topTracks.getData();
+      const shuffledSong = shuffleArray<Track>(songs?.items!);
+      setQueue([...shuffledSong]);
+      console.log("handleAddToQueue from useAudio");
+    }
+  };
+  const handleNextSong = async () => {
+    try {
+      console.log("handleNextSong_______");
+      console.log(queue.length);
+      if (queue.length > 0) {
+        const nextSong = queue.shift();
+        if (nextSong) {
+          await handlePlay(nextSong, "SPOTIFY");
+          setQueue([...queue]);
+        }
       }
     } catch (error) {
       console.log(error);
@@ -115,6 +164,7 @@ const useAudio = () => {
     pauseSong,
     currentDuration,
     currentSound,
+    handleNextSong,
   } as {
     handlePlay: (item: Track, type: typeof songType) => void;
     isPlaying: boolean;
@@ -123,6 +173,7 @@ const useAudio = () => {
     pauseSong: () => void;
     currentDuration: number;
     currentSound: Audio.Sound | null;
+    handleNextSong: () => void;
   };
 };
 

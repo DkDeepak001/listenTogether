@@ -20,25 +20,31 @@ const FullPlayer = () => {
   // const { player, playPercent, formattedEndduration, formattedStartingTime } =
   //   usePlayer();
 
-  const { currentTrack, isPlaying, pauseSong, isPaused, currentSound } =
-    useAudio();
+  const {
+    currentTrack,
+    isPlaying,
+    pauseSong,
+    isPaused,
+    currentSound,
+    currentDuration,
+  } = useAudio();
   const { totalDuration } = useSongStore();
-  const [status, setStatus] = useState<AVPlaybackStatus | null>(null);
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    const updateCurrentDuration = async () => {
-      if (isPlaying && currentSound) {
-        const status: AVPlaybackStatus = await currentSound.getStatusAsync();
-        setStatus(status);
-      } else {
-        clearInterval(interval);
-      }
-    };
+  // const [status, setStatus] = useState<AVPlaybackStatus | null>(null);
+  // useEffect(() => {
+  //   let interval: NodeJS.Timeout;
+  //   const updateCurrentDuration = async () => {
+  //     if (isPlaying && currentSound) {
+  //       const status: AVPlaybackStatus = await currentSound.getStatusAsync();
+  //       setStatus(status);
+  //     } else {
+  //       clearInterval(interval);
+  //     }
+  //   };
 
-    interval = setInterval(updateCurrentDuration, 500);
+  //   interval = setInterval(updateCurrentDuration, 500);
 
-    return () => clearInterval(interval);
-  }, [isPlaying, currentSound]);
+  //   return () => clearInterval(interval);
+  // }, [isPlaying, currentSound]);
   const context = api.useContext();
   const user = context.spotify.self.getData();
   // const { mutateAsync: pauseSong } = api.player.pauseSong.useMutation();
@@ -154,7 +160,7 @@ const FullPlayer = () => {
         </View>
         <View className="mt-8  w-11/12 ">
           <Text className=" absolute -top-2 left-5  text-xs text-white">
-            {formatDuration(status?.positionMillis || 0)}
+            {formatDuration(currentDuration || 0)}
           </Text>
           <Slider
             style={{ width: "100%", height: 50 }}
