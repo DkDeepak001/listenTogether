@@ -14,7 +14,7 @@ const PlaylistPage = () => {
   const { data: playlist, isLoading } = api.spotify.playlist.useQuery({
     id: id as string,
   });
-  const { handlePlay, isPlaying, currentTrack } = useAudio();
+  const { handlePlay, currentTrack, isPaused } = useAudio();
 
   if (isLoading) return <Text className="text-black">Loading...</Text>;
 
@@ -52,7 +52,7 @@ const PlaylistPage = () => {
                 <Image
                   className="h-4 w-4 rounded-full bg-blue-800"
                   source={
-                    currentTrack === item.track && isPlaying ? pause : play
+                    currentTrack === item ? (isPaused ? play : pause) : play
                   }
                   alt="pause"
                 />

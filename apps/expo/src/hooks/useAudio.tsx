@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react";
 import { ToastAndroid } from "react-native";
-import { Audio, type AVPlaybackStatus } from "expo-av";
+import { Audio } from "expo-av";
 
 import { type Track } from "@acme/api/src/router/types";
 
@@ -50,17 +49,13 @@ const useAudio = () => {
     try {
       setType(type);
       if (type === "SPOTIFY") setTotalDuration(30000);
-      if (currentTrack === item && isPlaying) {
-        await currentSound?.pauseAsync();
-        setIsPlaying(false);
+      if (currentTrack === item) {
+        void pauseSong();
         return;
       }
-
+      if (currentTrack !== item) await currentSound?.unloadAsync();
       setCurrentTrack(item);
-      if (currentSound) {
-        await currentSound.pauseAsync();
-        setIsPlaying(false);
-      }
+
       await Audio.setAudioModeAsync({
         playsInSilentModeIOS: true,
         staysActiveInBackground: false,
@@ -86,7 +81,7 @@ const useAudio = () => {
       );
       setCurrentSound(sound);
       setCurrentDuration(0); // Reset the current duration when starting a new song
-
+      setCurrentTrack(item);
       setIsPlaying(status.isLoaded);
       await sound.playAsync();
     } catch (error) {
@@ -97,8 +92,13 @@ const useAudio = () => {
   const pauseSong = async () => {
     try {
       if (currentSound) {
-        await currentSound.pauseAsync();
-        setIsPaused(true);
+        if (!isPaused) {
+          await currentSound.pauseAsync();
+          setIsPaused(true);
+        } else {
+          await currentSound.playAsync();
+          setIsPaused(false);
+        }
         // setCurrentSound(null);
         // setCurrentTrack(null);
       }

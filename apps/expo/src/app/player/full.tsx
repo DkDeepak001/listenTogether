@@ -9,7 +9,6 @@ import Slider from "@react-native-community/slider";
 import { api } from "~/utils/api";
 import { formatDuration } from "~/utils/convertMillSecond";
 import useAudio from "~/hooks/useAudio";
-import usePlayer from "~/hooks/usePlayer";
 import { useSongStore } from "~/store/player";
 import downArrow from "../../../assets/player/downArrow.svg";
 import next from "../../../assets/player/next.svg";
@@ -21,15 +20,9 @@ const FullPlayer = () => {
   // const { player, playPercent, formattedEndduration, formattedStartingTime } =
   //   usePlayer();
 
-  const {
-    currentTrack,
-    isPlaying,
-    handlePlay,
-    pauseSong,
-    isPaused,
-    currentSound,
-  } = useAudio();
-  const { totalDuration, currentDuration } = useSongStore();
+  const { currentTrack, isPlaying, pauseSong, isPaused, currentSound } =
+    useAudio();
+  const { totalDuration } = useSongStore();
   const [status, setStatus] = useState<AVPlaybackStatus | null>(null);
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -61,19 +54,19 @@ const FullPlayer = () => {
   //   router.back();
   // }
 
-  const handleSeekSong = async (value: number) => {
-    if (user?.product === "free")
-      ToastAndroid.show(
-        "You need to have a premium account to use this feature",
-        ToastAndroid.SHORT,
-      );
-    else {
-      await seekSong({
-        device_id: player.device.id,
-        position_ms: value * player.item.duration_ms,
-      });
-    }
-  };
+  // const handleSeekSong = async (value: number) => {
+  //   if (user?.product === "free")
+  //     ToastAndroid.show(
+  //       "You need to have a premium account to use this feature",
+  //       ToastAndroid.SHORT,
+  //     );
+  //   else {
+  //     await seekSong({
+  //       device_id: player.device.id,
+  //       position_ms: value * player.item.duration_ms,
+  //     });
+  //   }
+  // };
 
   const handlePauseSong = async () => {
     pauseSong();

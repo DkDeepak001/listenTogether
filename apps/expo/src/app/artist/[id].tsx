@@ -15,7 +15,7 @@ const ArtistPage = () => {
     id: id as string,
   });
 
-  const { isPlaying, handlePlay, currentTrack } = useAudio();
+  const { isPaused, handlePlay, currentTrack } = useAudio();
 
   if (isLoading) return <Text className="text-black">Loading...</Text>;
 
@@ -42,7 +42,9 @@ const ArtistPage = () => {
             >
               <Image
                 className="h-4 w-4 rounded-full bg-blue-800"
-                source={currentTrack === item && isPlaying ? pause : play}
+                source={
+                  currentTrack === item ? (isPaused ? play : pause) : play
+                }
                 alt="pause"
               />
             </Pressable>

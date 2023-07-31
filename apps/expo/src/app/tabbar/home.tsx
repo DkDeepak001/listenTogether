@@ -18,7 +18,7 @@ const Home = () => {
   const [type, setType] = useState<TopType>("tracks");
   const { updateToken } = useAuthToken();
 
-  const { handlePlay, isPlaying, currentTrack } = useAudio();
+  const { handlePlay, isPlaying, currentTrack, isPaused } = useAudio();
   const { data: user, isLoading } = api.spotify.self.useQuery();
 
   const { data: topTracks, refetch: refetchTopTracks } =
@@ -108,7 +108,9 @@ const Home = () => {
               >
                 <Image
                   className="h-4 w-4 rounded-full bg-blue-800"
-                  source={currentTrack === item && isPlaying ? pause : play}
+                  source={
+                    currentTrack === item ? (isPaused ? play : pause) : play
+                  }
                   alt="pause"
                 />
               </Pressable>
