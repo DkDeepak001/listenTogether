@@ -5,6 +5,8 @@ import { Image } from "expo-image";
 import { type Track } from "@acme/api/src/router/types";
 
 import { type api } from "~/utils/api";
+import useAudio from "~/hooks/useAudio";
+import { useAudioStore } from "~/store/audio";
 import upArrow from "../../../assets/player/downArrow.svg";
 
 type MiniplayerProps = {
@@ -13,6 +15,8 @@ type MiniplayerProps = {
 };
 
 const Miniplayer = ({ currentTrack, pressableProps }: MiniplayerProps) => {
+  const { currentSound } = useAudio();
+  const { isPlaying } = useAudioStore();
   return (
     <Pressable
       className=" w-ffull flex  flex-row items-center rounded-t-3xl bg-white/20 px-5 py-3 backdrop-blur-sm"

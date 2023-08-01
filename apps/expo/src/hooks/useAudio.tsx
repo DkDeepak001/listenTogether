@@ -40,7 +40,7 @@ const useAudio = () => {
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
     const updateCurrentDuration = async () => {
-      if (isPlaying && currentSound && !isPaused) {
+      if (isPlaying && currentSound) {
         const status: AVPlaybackStatus =
           (await currentSound?.getStatusAsync()) as AVPlaybackStatusSuccess;
         setCurrentDuration(status.positionMillis);
@@ -48,6 +48,8 @@ const useAudio = () => {
           console.log(status);
           // await currentSound.unloadAsync();
           await handleNextSong();
+        } else {
+          console.log("song not completed");
         }
       } else {
         console.log("clearInterval");
@@ -75,7 +77,6 @@ const useAudio = () => {
         setCurrentTrack(null);
         if (queue.length <= 0) await handleAddToQueue();
       }
-      setCurrentTrack(item);
 
       await Audio.setAudioModeAsync({
         playsInSilentModeIOS: true,

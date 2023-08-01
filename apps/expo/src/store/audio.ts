@@ -16,11 +16,23 @@ interface AudioState {
 
 export const useAudioStore = create<AudioState>((set) => ({
   isPlaying: false,
-  setIsPlaying: (isPlaying: boolean) => set({ isPlaying }),
+  setIsPlaying: (isPlaying: boolean) => {
+    console.log("isPlaying:", isPlaying);
+    set({ isPlaying });
+  },
   currentSound: null,
-  setCurrentSound: (currentSound: Audio.Sound | null) => set({ currentSound }),
+  setCurrentSound: (currentSound: Audio.Sound | null) => {
+    console.log("currentSound:", currentSound);
+    set({ currentSound });
+  },
   currentTrack: null,
-  setCurrentTrack: (currentTrack: Track | null) => set({ currentTrack }),
+  setCurrentTrack: (currentTrack: Track | null) => {
+    console.log("currentTrack:", currentTrack);
+    set({ currentTrack });
+  },
   isPaused: false,
-  setIsPaused: (isPaused: boolean) => set({ isPaused }),
+  setIsPaused: (isPaused: boolean) => {
+    console.log("isPaused:", isPaused);
+    set({ isPaused });
+  },
 }));
