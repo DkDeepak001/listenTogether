@@ -19,7 +19,7 @@ const PlaylistPage = () => {
   if (isLoading) return <Text className="text-black">Loading...</Text>;
 
   return (
-    <SafeAreaView className="flex-1 bg-black">
+    <SafeAreaView className="h-screen flex-1 bg-black">
       <FlatList
         data={playlist?.tracks?.items ?? []}
         renderItem={({ item }) => {

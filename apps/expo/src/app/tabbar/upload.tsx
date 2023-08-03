@@ -12,6 +12,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Image } from "expo-image";
 import * as ImagePicker from "expo-image-picker";
 import * as MediaLibrary from "expo-media-library";
+import { useRouter } from "expo-router";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
@@ -47,11 +48,17 @@ const schema = z.object({
   }),
 });
 const Upload = () => {
+  const router = useRouter();
   const [permissionResponse, requestPermission] = MediaLibrary.usePermissions();
   const [audio, setAudio] =
     useState<MediaLibrary.PagedInfo<MediaLibrary.Asset> | null>(null);
   const [show, setShow] = useState<boolean>(false);
-  const { mutateAsync: uploadSong } = api.upload.uploadSong.useMutation();
+  const { mutateAsync: uploadSong } = api.upload.uploadSong.useMutation({
+    onSuccess: () => {
+      ToastAndroid.show("Song Uploaded", ToastAndroid.SHORT);
+      router.push("/playlist/upload");
+    },
+  });
   const { mutateAsync: createPresignedUrl } =
     api.upload.getPrsignedUrl.useMutation();
   const {
@@ -64,6 +71,16 @@ const Upload = () => {
   } = useForm<FormSchema>({
     resolver: zodResolver(schema),
   });
+  useEffect(() => {
+    if (permissionResponse?.granted) {
+      MediaLibrary.getAssetsAsync({
+        mediaType: MediaLibrary.MediaType.audio,
+      }).then((result) => {
+        setAudio(result);
+      });
+    }
+  }, [permissionResponse?.granted]);
+
   const submit = async (data: FormSchema) => {
     if (!data || !data.audio?.uri || !data.image?.assets) return;
     try {
@@ -286,7 +303,7 @@ const Upload = () => {
         )}
 
         <Pressable
-          className="mt-5  flex flex-row items-center  justify-center rounded-full bg-blue-600 px-5 py-3"
+          className="mb-5 mt-5 flex flex-row items-center  justify-center rounded-full bg-blue-600 px-5 py-3"
           onPress={handleSubmit(submit)}
         >
           <Image

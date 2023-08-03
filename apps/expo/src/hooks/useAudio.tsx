@@ -101,7 +101,9 @@ const useAudio = () => {
         status: AVPlaybackStatusSuccess;
       };
       ToastAndroid.showWithGravity(
-        `Playing Preview for 30 sec of ${item.name} `,
+        type === "SPOTIFY"
+          ? `Playing Preview for 30 sec of ${item.name} `
+          : `Playing ${item.name}`,
         ToastAndroid.SHORT,
         ToastAndroid.BOTTOM,
       );

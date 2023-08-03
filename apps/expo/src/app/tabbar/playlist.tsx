@@ -23,6 +23,25 @@ const Playlist = () => {
             </Text>
           </View>
         )}
+        ListHeaderComponent={() => (
+          <Pressable
+            className="my-3 flex flex-row"
+            onPress={() => router.push(`/playlist/upload`)}
+          >
+            <View className=" flex-1 flex-row items-center justify-between rounded-xl bg-slate-500 p-3">
+              <Text className="text-3xl font-extrabold text-white">
+                My uploads
+              </Text>
+              <Pressable className=" h-12 w-12  items-center justify-center rounded-full bg-blue-800">
+                <Image
+                  className="h-8 w-8 rounded-full bg-blue-800"
+                  source={play}
+                  alt="pause"
+                />
+              </Pressable>
+            </View>
+          </Pressable>
+        )}
         renderItem={({ item }) => (
           <Pressable
             className="my-3 flex flex-row"

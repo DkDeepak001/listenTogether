@@ -3,6 +3,7 @@ import { z } from "zod";
 import { FileType } from "@acme/db";
 
 import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { type Track } from "./types";
 import { s3 } from "./utils";
 
 export const uploadRouter = createTRPCRouter({
@@ -90,4 +91,104 @@ export const uploadRouter = createTRPCRouter({
         console.log(error);
       }
     }),
+  get: protectedProcedure.query(async ({ ctx }) => {
+    try {
+      const song = await ctx.prisma.song.findMany({
+        where: {
+          createdBy: {
+            id: ctx?.userId,
+          },
+        },
+      });
+
+      const result: Track[] = song.map((s) => {
+        return {
+          id: s.id,
+          is_local: true,
+          name: s.name,
+          album: {
+            album_type: "",
+            href: "",
+            id: "",
+            name: s.album,
+            type: "album",
+            uri: "",
+
+            artists: [
+              {
+                id: "",
+                name: s.artist,
+                external_urls: {
+                  spotify: "",
+                },
+                href: "",
+                type: "artist",
+                uri: "",
+                followers: 0,
+                genres: [],
+                images: [
+                  {
+                    height: 640,
+                    url: s.imageUri,
+                    width: 640,
+                  },
+                ],
+              },
+            ],
+            external_urls: {
+              spotify: "",
+            },
+
+            images: [
+              {
+                height: 640,
+                url: s.imageUri,
+                width: 640,
+              },
+            ],
+          },
+          artists: [
+            {
+              id: "",
+              name: s.artist,
+              external_urls: {
+                spotify: "",
+              },
+              href: "",
+              type: "artist",
+              uri: "",
+              followers: 0,
+              genres: [],
+              images: [
+                {
+                  height: 640,
+                  url: s.imageUri,
+                  width: 640,
+                },
+              ],
+              popularity: 0,
+            },
+          ],
+          duration_ms: 0,
+          explicit: false,
+          external_urls: {
+            spotify: s.songUri,
+          },
+          href: "",
+          preview_url: s.songUri,
+          track_number: 0,
+          type: "track",
+          uri: s.songUri,
+          available_markets: [],
+          disc_number: 0,
+          external_ids: {
+            isrc: "",
+          },
+        };
+      });
+      return result;
+    } catch (error) {
+      console.log(error);
+    }
+  }),
 });

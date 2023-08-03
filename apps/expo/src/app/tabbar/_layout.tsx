@@ -2,7 +2,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Tabs } from "expo-router";
 
 import AppTabBar from "~/components/tabbar/tabbar";
-import usePlayer from "~/hooks/usePlayer";
 
 const BottomTabs = () => {
   // const { player } = usePlayer();
