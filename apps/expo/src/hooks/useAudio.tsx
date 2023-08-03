@@ -77,6 +77,7 @@ const useAudio = () => {
         setCurrentTrack(null);
         if (queue.length <= 0) await handleAddToQueue();
       }
+      setCurrentSound(null);
 
       await Audio.setAudioModeAsync({
         playsInSilentModeIOS: true,
@@ -147,9 +148,11 @@ const useAudio = () => {
       console.log(queue.length);
       if (queue.length > 0) {
         const nextSong = queue.shift();
+        console.log(nextSong?.name);
         if (nextSong) {
-          await handlePlay(nextSong, "SPOTIFY");
           setQueue([...queue]);
+          handlePlay(nextSong, "SPOTIFY");
+          console.log(queue[0]?.name);
         }
       }
     } catch (error) {
