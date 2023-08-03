@@ -39,7 +39,7 @@ export const spotifyRouter = createTRPCRouter({
     }
   }),
   topTracks: protectedProcedure.query(async ({ ctx }) => {
-    return await fetch(`https://api.spotify.com/v1/me/top/tracks`, {
+    return await fetch(`https://api.spotify.com/v1/me/top/tracks?limit=50`, {
       method: "GET",
       headers: {
         Authorization: "Bearer " + ctx.accessToken,

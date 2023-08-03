@@ -135,12 +135,9 @@ const useAudio = () => {
   const context = api.useContext();
 
   const handleAddToQueue = async () => {
-    if (path === "/tabbar/home") {
-      const songs = context.spotify.topTracks.getData();
-      const shuffledSong = shuffleArray<Track>(songs?.items!);
-      setQueue([...shuffledSong]);
-      console.log("handleAddToQueue from useAudio");
-    }
+    const songs = context.spotify.topTracks.getData();
+    const shuffledSong = shuffleArray<Track>(songs?.items!);
+    setQueue([...shuffledSong]);
   };
   const handleNextSong = async () => {
     try {
