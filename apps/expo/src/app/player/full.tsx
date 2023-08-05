@@ -167,7 +167,7 @@ const FullPlayer = () => {
             minimumValue={0}
             maximumValue={100}
             // value={playPercent}
-            onSlidingComplete={(value) => void handleSeekSong(value)}
+            // onSlidingComplete={(value) => void handleSeekSong(value)}
             minimumTrackTintColor="#FFFFFF"
             maximumTrackTintColor="#FFFFFF"
             thumbTintColor="#FFFFFF"
