@@ -20,14 +20,8 @@ const FullPlayer = () => {
   // const { player, playPercent, formattedEndduration, formattedStartingTime } =
   //   usePlayer();
 
-  const {
-    currentTrack,
-    isPlaying,
-    pauseSong,
-    isPaused,
-    currentSound,
-    currentDuration,
-  } = useAudio();
+  const { currentTrack, pauseSong, isPaused, currentDuration, handleSeekSong } =
+    useAudio();
   const { totalDuration } = useSongStore();
   // const [status, setStatus] = useState<AVPlaybackStatus | null>(null);
   // useEffect(() => {
@@ -59,20 +53,6 @@ const FullPlayer = () => {
   //   ToastAndroid.show("Playing ads is not supported", ToastAndroid.SHORT);
   //   router.back();
   // }
-
-  // const handleSeekSong = async (value: number) => {
-  //   if (user?.product === "free")
-  //     ToastAndroid.show(
-  //       "You need to have a premium account to use this feature",
-  //       ToastAndroid.SHORT,
-  //     );
-  //   else {
-  //     await seekSong({
-  //       device_id: player.device.id,
-  //       position_ms: value * player.item.duration_ms,
-  //     });
-  //   }
-  // };
 
   const handlePauseSong = async () => {
     pauseSong();
@@ -169,7 +149,7 @@ const FullPlayer = () => {
             minimumValue={0}
             maximumValue={100}
             value={isNaN(playPercent) ? 0 : playPercent}
-            // onSlidingComplete={(value) => void handleSeekSong(value)}
+            onSlidingComplete={(value) => handleSeekSong(value)}
             minimumTrackTintColor="#FFFFFF"
             maximumTrackTintColor="#FFFFFF"
             thumbTintColor="#FFFFFF"

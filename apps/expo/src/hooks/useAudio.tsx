@@ -159,6 +159,11 @@ const useAudio = () => {
     }
   };
 
+  const handleSeekSong = async (value: number) => {
+    const seeek = Math.floor((value / 100) * totalDuration);
+    if (isPlaying && currentSound) await currentSound.setPositionAsync(seeek);
+  };
+
   return {
     handlePlay,
     isPlaying,
@@ -168,6 +173,7 @@ const useAudio = () => {
     currentDuration,
     currentSound,
     handleNextSong,
+    handleSeekSong,
   } as {
     handlePlay: (item: Track, type: typeof songType) => void;
     isPlaying: boolean;
@@ -177,6 +183,7 @@ const useAudio = () => {
     currentDuration: number;
     currentSound: Audio.Sound | null;
     handleNextSong: () => void;
+    handleSeekSong: (value: number) => void;
   };
 };
 
