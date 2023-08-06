@@ -108,6 +108,8 @@ const FullPlayer = () => {
     // else await prevSong({ device_id: player.device.id });
   };
 
+  const playPercent = Math.floor((currentDuration / totalDuration) * 100) ?? 0;
+
   return (
     <SafeAreaView className="flex-1 bg-black pt-5">
       <Pressable onPress={() => router.back()}>
@@ -166,7 +168,7 @@ const FullPlayer = () => {
             style={{ width: "100%", height: 50 }}
             minimumValue={0}
             maximumValue={100}
-            // value={playPercent}
+            value={isNaN(playPercent) ? 0 : playPercent}
             // onSlidingComplete={(value) => void handleSeekSong(value)}
             minimumTrackTintColor="#FFFFFF"
             maximumTrackTintColor="#FFFFFF"
