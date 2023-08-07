@@ -62,6 +62,18 @@ const RootLayout = () => {
                 animationDuration: 1000,
               }}
             />
+            <Stack.Screen
+              name="playlist/upload"
+              options={{
+                animation: "slide_from_right",
+                headerShown: true,
+                title: "Upload",
+                headerStyle: {
+                  backgroundColor: "black",
+                },
+                headerTintColor: "#fff",
+              }}
+            />
           </Stack>
         </View>
       </SafeAreaProvider>

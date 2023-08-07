@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { Track } from "./types";
 import { pusherServer } from "./utils";
 
 export const channelRouter = createTRPCRouter({
@@ -58,5 +59,22 @@ export const channelRouter = createTRPCRouter({
           },
         },
       });
+    }),
+  sendListening: protectedProcedure
+    .input(
+      z.object({
+        channelId: z.string(),
+        isListening: z.boolean(),
+        currentSound: z.any(),
+        currentTrack: z.any(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      await pusherServer.trigger(`public-${input.channelId}`, "listening", {
+        isListening: input.isListening,
+        currentTrack: input.currentTrack ?? null,
+        currentSound: input.currentSound ?? null,
+      });
+      return true;
     }),
 });

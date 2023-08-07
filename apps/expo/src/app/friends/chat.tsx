@@ -8,6 +8,8 @@ import {
 
 import { api } from "~/utils/api";
 import pusher from "~/utils/pusher";
+import useAudio from "~/hooks/useAudio";
+import { useAudioStore } from "~/store/audio";
 
 // import pusherClient from "~/utils/pusher";
 
@@ -16,12 +18,20 @@ const ChatPage = () => {
   const navigation = useNavigation();
 
   const [messageText, setMessageText] = useState<string>("");
-  const [messages, setMessages] = useState<Array<string>>([]);
+  const { setLiveSong } = useAudio();
+
+  const { isPlaying, currentSound, currentTrack } = useAudioStore();
+
+  const [listeningSong, setListeningSong] = useState<string>("");
 
   const context = api.useContext();
+  const user = context.spotify.self.getData();
   const { data: allMessage } = api.channel.allMessages.useQuery({
     channelId: query.channel as string,
   });
+
+  const { mutateAsync: sendListening } =
+    api.channel.sendListening.useMutation();
   const { mutateAsync: sendMessage } = api.channel.sendMessage.useMutation();
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -40,7 +50,16 @@ const ChatPage = () => {
         await pusher.subscribe({
           channelName: `public-${query?.channel}`,
           onEvent: (event: PusherEvent) => {
-            console.log(`Event received: ${event}`);
+            if (event.eventName === "listening") {
+              const song = JSON.parse(event?.data);
+              setListeningSong(song.currentTrack.name ?? "");
+              if (!isPlaying) {
+                console.log(
+                  "Load song______________________________________________________________",
+                );
+                setLiveSong(song);
+              }
+            }
             if (event.eventName === "message") {
               console.log("message recived", event.data);
               context.channel.allMessages.setData(
@@ -65,7 +84,16 @@ const ChatPage = () => {
               context.channel.allMessages.invalidate();
             }
           },
-          onSubscriptionSucceeded: (members: PusherMember[]) => {
+
+          onSubscriptionSucceeded: async (members: PusherMember) => {
+            const sound = await currentSound?.getStatusAsync();
+
+            await sendListening({
+              channelId: `${query?.channel}`,
+              isListening: isPlaying,
+              currentTrack: currentTrack ?? "",
+              currentSound: sound ?? "",
+            });
             console.log(`Subscription succeeded: ${JSON.stringify(members)}`);
           },
           onMemberAdded(member) {
@@ -111,7 +139,7 @@ const ChatPage = () => {
 
   return (
     <View className=" flex flex-1 flex-col items-center justify-center bg-black p-5">
-      <Text className="text-white">ChatPage</Text>
+      <Text className="text-white">ChatPage {listeningSong}</Text>
       <FlatList
         data={allMessage?.chatMessage}
         renderItem={({ item }) => (

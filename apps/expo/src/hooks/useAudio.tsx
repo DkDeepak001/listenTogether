@@ -159,6 +159,43 @@ const useAudio = () => {
     }
   };
 
+  const setLiveSong = async ({
+    currentTrack,
+    currentSound: wsSound,
+  }: {
+    currentTrack: Track;
+    currentSound: AVPlaybackStatusSuccess;
+  }) => {
+    try {
+      console.log("setLiveSong");
+      await currentSound?.unloadAsync();
+      setCurrentSound(null);
+      setCurrentTrack(null);
+
+      console.log(currentTrack, wsSound, "uri-------------------------------");
+
+      const { sound, status } = (await Audio.Sound.createAsync(
+        {
+          uri: currentTrack?.preview_url ?? "",
+        },
+        {
+          isLooping: false,
+          shouldPlay: true,
+          positionMillis: wsSound?.positionMillis + 5950,
+        },
+      )) as {
+        sound: Audio.Sound;
+        status: AVPlaybackStatusSuccess;
+      };
+      setIsPlaying(status.isLoaded);
+      setCurrentTrack(currentTrack);
+      setCurrentSound(sound);
+      setTotalDuration(status.durationMillis as number);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const handleSeekSong = async (value: number) => {
     const seeek = Math.floor((value / 100) * totalDuration);
     if (isPlaying && currentSound) await currentSound.setPositionAsync(seeek);
@@ -174,6 +211,7 @@ const useAudio = () => {
     currentSound,
     handleNextSong,
     handleSeekSong,
+    setLiveSong,
   } as {
     handlePlay: (item: Track, type: typeof songType) => void;
     isPlaying: boolean;
@@ -184,6 +222,7 @@ const useAudio = () => {
     currentSound: Audio.Sound | null;
     handleNextSong: () => void;
     handleSeekSong: (value: number) => void;
+    setLiveSong: (item: any) => void;
   };
 };
 
