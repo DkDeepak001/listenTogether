@@ -6,8 +6,10 @@ import { StatusBar } from "expo-status-bar";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { TRPCProvider } from "~/utils/api";
+import useAuthToken from "~/hooks/useAuthToken";
 
 export function useRefreshOnFocus<T>(refetch: () => Promise<T>) {
+  const { refreshToken } = useAuthToken();
   const firstTimeRef = useRef(true);
   useFocusEffect(
     useCallback(() => {

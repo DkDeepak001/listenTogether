@@ -1,6 +1,8 @@
 import React, { useEffect, useLayoutEffect, useState } from "react";
 import { FlatList, Pressable, Text, TextInput, View } from "react-native";
+import { Image } from "expo-image";
 import { useLocalSearchParams, useNavigation } from "expo-router";
+import send from " ../../../assets/send.svg";
 import {
   type PusherEvent,
   type PusherMember,
@@ -74,7 +76,7 @@ const ChatPage = () => {
                         message: event.data,
                         sender: {
                           display_name: query.name,
-                          id: "temp",
+                          id: user?.id,
                         },
                       },
                     ],
@@ -125,6 +127,7 @@ const ChatPage = () => {
   }, []);
 
   const handleSentMessage = async () => {
+    setMessageText("");
     try {
       const response = await sendMessage({
         channelId: `${query?.channel}`,
@@ -143,24 +146,35 @@ const ChatPage = () => {
       <FlatList
         data={allMessage?.chatMessage}
         renderItem={({ item }) => (
-          <Text className="text-white">
-            {item.sender.display_name} :{item.message}
-          </Text>
+          <View className={`mb-2 flex w-full flex-row `}>
+            <Text
+              className={`w-full  ${
+                item.sender.id === user?.id ? "text-right" : "text-left"
+              } text-white`}
+            >
+              {item.message}
+            </Text>
+          </View>
         )}
         keyExtractor={(item) => item.id}
       />
 
-      <Pressable
-        onPress={() => handleSentMessage()}
-        className="rounded-md bg-blue-500 p-5"
-      >
-        <Text className="text-white">Send Message</Text>
-      </Pressable>
-      <TextInput
-        className="mt-5 w-full rounded-lg bg-gray-500 px-2 py-2 text-white"
-        value={messageText}
-        onChangeText={(text) => setMessageText(text)}
-      />
+      <View className="flex w-full flex-row items-center rounded-3xl bg-gray-200">
+        <TextInput
+          className="w-9/12 rounded-lg px-6  text-white"
+          value={messageText}
+          onChangeText={(text) => setMessageText(text)}
+          placeholder="Type your message here"
+          placeholderTextColor="white"
+        />
+        <Pressable
+          onPress={() => handleSentMessage()}
+          className="flex w-1/4 flex-row  justify-end self-end rounded-md  p-5"
+        >
+          <Image source={send} className="h-5 w-6" />
+          {/* <Text className="text-white">Send Message</Text> */}
+        </Pressable>
+      </View>
     </View>
   );
 };
