@@ -1,19 +1,27 @@
 import React, { useEffect, useLayoutEffect, useState } from "react";
-import { FlatList, Pressable, Text, TextInput, View } from "react-native";
+import {
+  FlatList,
+  Pressable,
+  Text,
+  TextInput,
+  ToastAndroid,
+  View,
+} from "react-native";
 import { Image } from "expo-image";
 import { useLocalSearchParams, useNavigation } from "expo-router";
-import send from " ../../../assets/send.svg";
+import send from " ../../../assets/chat/send.svg";
+import sync from " ../../../assets/chat/sync.svg";
 import {
   type PusherEvent,
   type PusherMember,
 } from "@pusher/pusher-websocket-react-native";
 
+import { type Track } from "@acme/api/src/router/types";
+
 import { api } from "~/utils/api";
 import pusher from "~/utils/pusher";
 import useAudio from "~/hooks/useAudio";
 import { useAudioStore } from "~/store/audio";
-
-// import pusherClient from "~/utils/pusher";
 
 const ChatPage = () => {
   const query = useLocalSearchParams();
@@ -24,7 +32,7 @@ const ChatPage = () => {
 
   const { isPlaying, currentSound, currentTrack } = useAudioStore();
 
-  const [listeningSong, setListeningSong] = useState<string>("");
+  const [listeningSong, setListeningSong] = useState<Track | null>();
 
   const context = api.useContext();
   const user = context.spotify.self.getData();
@@ -32,11 +40,26 @@ const ChatPage = () => {
     channelId: query.channel as string,
   });
 
+  let acceptPlaying = false;
   const { mutateAsync: sendListening } =
     api.channel.sendListening.useMutation();
   const { mutateAsync: sendMessage } = api.channel.sendMessage.useMutation();
+  const { mutateAsync: getCurrentListening } =
+    api.channel.getCurrentListening.useMutation();
   useLayoutEffect(() => {
     navigation.setOptions({
+      headerRight: () =>
+        !listeningSong ? (
+          <Pressable onPress={() => handleGetCurrentListening()}>
+            <Image source={sync} className="h-5 w-6" alt="sync" />
+          </Pressable>
+        ) : (
+          <Image
+            alt="album"
+            className=" h-8 w-8 rounded-lg "
+            source={listeningSong?.album?.images[0]?.url}
+          />
+        ),
       headerShown: true,
       title: `${query.name}`,
       headerStyle: {
@@ -44,7 +67,19 @@ const ChatPage = () => {
       },
       headerTintColor: "#fff",
     });
-  }, []);
+  }, [currentSound, isPlaying, listeningSong]);
+
+  const handleGetCurrentListening = async () => {
+    try {
+      acceptPlaying = true;
+      await getCurrentListening({
+        channelId: `${query?.channel}`,
+      });
+      ToastAndroid.show("Syncing", ToastAndroid.SHORT);
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
 
   useEffect(() => {
     const PusherInit = async () => {
@@ -54,13 +89,19 @@ const ChatPage = () => {
           onEvent: (event: PusherEvent) => {
             if (event.eventName === "listening") {
               const song = JSON.parse(event?.data);
-              setListeningSong(song.currentTrack.name ?? "");
-              if (!isPlaying) {
-                console.log(
-                  "Load song______________________________________________________________",
-                );
+              if (song.currentTrack === null) {
+                ToastAndroid.show("No one is listening", ToastAndroid.SHORT);
+                return;
+              }
+              setListeningSong(song.currentTrack as Track);
+              if (!isPlaying && acceptPlaying) {
                 setLiveSong(song);
               }
+            }
+
+            if (event.eventName === "getListening") {
+              console.log("getListening", event.data);
+              handleSendListening();
             }
             if (event.eventName === "message") {
               console.log("message recived", event.data);
@@ -76,7 +117,7 @@ const ChatPage = () => {
                         message: event.data,
                         sender: {
                           display_name: query.name,
-                          id: user?.id,
+                          id: "temp",
                         },
                       },
                     ],
@@ -88,14 +129,7 @@ const ChatPage = () => {
           },
 
           onSubscriptionSucceeded: async (members: PusherMember) => {
-            const sound = await currentSound?.getStatusAsync();
-
-            await sendListening({
-              channelId: `${query?.channel}`,
-              isListening: isPlaying,
-              currentTrack: currentTrack ?? "",
-              currentSound: sound ?? "",
-            });
+            await handleSendListening();
             console.log(`Subscription succeeded: ${JSON.stringify(members)}`);
           },
           onMemberAdded(member) {
@@ -126,6 +160,17 @@ const ChatPage = () => {
     };
   }, []);
 
+  const handleSendListening = async () => {
+    const sound = await currentSound?.getStatusAsync();
+
+    if (!currentTrack) return;
+    await sendListening({
+      channelId: `${query?.channel}`,
+      isListening: isPlaying,
+      currentTrack: currentTrack,
+      currentSound: sound,
+    });
+  };
   const handleSentMessage = async () => {
     setMessageText("");
     try {
@@ -142,7 +187,7 @@ const ChatPage = () => {
 
   return (
     <View className=" flex flex-1 flex-col items-center justify-center bg-black p-5">
-      <Text className="text-white">ChatPage {listeningSong}</Text>
+      <Text className="text-white">ChatPage</Text>
       <FlatList
         data={allMessage?.chatMessage}
         renderItem={({ item }) => (
@@ -159,7 +204,7 @@ const ChatPage = () => {
         keyExtractor={(item) => item.id}
       />
 
-      <View className="flex w-full flex-row items-center rounded-3xl bg-gray-200">
+      <View className="flex w-full flex-row items-center rounded-3xl bg-gray-500">
         <TextInput
           className="w-9/12 rounded-lg px-6  text-white"
           value={messageText}

@@ -77,4 +77,14 @@ export const channelRouter = createTRPCRouter({
       });
       return true;
     }),
+
+  getCurrentListening: protectedProcedure
+    .input(z.object({ channelId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      return await pusherServer.trigger(
+        `public-${input.channelId}`,
+        "getListening",
+        {},
+      );
+    }),
 });

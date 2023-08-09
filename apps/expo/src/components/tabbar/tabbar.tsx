@@ -66,7 +66,7 @@ const AppTabBar = ({ state }: AppTabBarProps) => {
         <Pressable
           onPress={() => void handlePress("/tabbar/upload")}
           className={`flex h-14 w-1/6 items-center justify-center rounded-full ${
-            state.index === 4 ? "bg-blue-700" : ""
+            state.index === 2 ? "bg-blue-700" : ""
           }  py-2`}
         >
           <Image
@@ -80,7 +80,7 @@ const AppTabBar = ({ state }: AppTabBarProps) => {
         <Pressable
           onPress={() => void handlePress("/tabbar/playlist")}
           className={`flex h-14 w-1/6 items-center justify-center rounded-full ${
-            state.index === 3 ? "bg-blue-700" : ""
+            state.index === 4 ? "bg-blue-700" : ""
           }  py-2`}
         >
           <Image
@@ -94,7 +94,7 @@ const AppTabBar = ({ state }: AppTabBarProps) => {
         <Pressable
           onPress={() => void handlePress("/tabbar/friends")}
           className={`flex h-14 w-1/6 items-center justify-center rounded-full ${
-            state.index === 2 ? "bg-blue-700" : ""
+            state.index === 3 ? "bg-blue-700" : ""
           }  py-2`}
         >
           <Image
