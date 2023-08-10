@@ -76,6 +76,19 @@ const RootLayout = () => {
                 headerTintColor: "#fff",
               }}
             />
+
+            <Stack.Screen
+              name="upload/upload"
+              options={{
+                animation: "slide_from_right",
+                headerShown: true,
+                title: "Upload",
+                headerStyle: {
+                  backgroundColor: "black",
+                },
+                headerTintColor: "#fff",
+              }}
+            />
           </Stack>
         </View>
       </SafeAreaProvider>

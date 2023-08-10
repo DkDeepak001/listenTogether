@@ -5,7 +5,6 @@ import {
   type AVPlaybackStatus,
   type AVPlaybackStatusSuccess,
 } from "expo-av";
-import { usePathname } from "expo-router";
 
 import { type Track } from "@acme/api/src/router/types";
 
@@ -71,11 +70,11 @@ const useAudio = () => {
         return;
       }
       if (currentTrack !== item) {
-        console.log("currentTrack !== item");
         await currentSound?.unloadAsync();
         setCurrentSound(null);
         setCurrentTrack(null);
-        if (queue.length <= 0) await handleAddToQueue();
+
+        // if (queue.length <= 0) await handleAddToQueue();
       }
       setCurrentSound(null);
 
@@ -133,7 +132,6 @@ const useAudio = () => {
       console.log(error);
     }
   };
-  const path = usePathname();
   const context = api.useContext();
 
   const handleAddToQueue = async () => {
