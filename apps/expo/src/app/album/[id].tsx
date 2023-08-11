@@ -1,13 +1,14 @@
 import React from "react";
-import { FlatList, Pressable, Text, View } from "react-native";
+import { FlatList, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Image } from "expo-image";
 import { useLocalSearchParams } from "expo-router";
 
+import { type Track } from "@acme/api/src/router/types";
+
 import { api } from "~/utils/api";
+import SongCard from "~/components/card/song";
 import useAudio from "~/hooks/useAudio";
-import pause from "../../../assets/playlist/pause.svg";
-import play from "../../../assets/playlist/play.svg";
 
 const AlbumPage = () => {
   const { id } = useLocalSearchParams();
@@ -25,31 +26,14 @@ const AlbumPage = () => {
         data={album?.tracks.items ?? []}
         renderItem={({ item }) => {
           return (
-            <View className="my-2 flex flex-row items-center justify-between gap-x-2 px-5">
-              <View className="flex flex-row items-center gap-x-3">
-                <Image
-                  className="h-16 w-16 rounded-2xl"
-                  source={{ uri: album?.images[0]?.url ?? "" }}
-                  alt={item?.name}
-                />
-                <View className="flex flex-col">
-                  <Text className="text-white">{item?.name}</Text>
-                  <Text className="text-white">{item?.artists[0]?.name}</Text>
-                </View>
-              </View>
-              <Pressable
-                className="  h-8  w-8  items-center justify-center rounded-full bg-blue-800"
-                onPress={() => void handlePlay(item, "SPOTIFY")}
-              >
-                <Image
-                  className="h-4 w-4 rounded-full bg-blue-800"
-                  source={
-                    currentTrack === item ? (isPaused ? play : pause) : play
-                  }
-                  alt="pause"
-                />
-              </Pressable>
-            </View>
+            <SongCard
+              item={item}
+              currentTrack={currentTrack}
+              handlePlay={(item: Track, type: "SPOTIFY" | "UPLOAD" | null) =>
+                handlePlay(item, type)
+              }
+              isPaused={isPaused}
+            />
           );
         }}
         ListEmptyComponent={() => (
