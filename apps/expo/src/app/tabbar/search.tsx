@@ -7,6 +7,7 @@ import { type Track } from "@acme/api/src/router/types";
 
 import { api } from "~/utils/api";
 import ArtistCard from "~/components/card/artist";
+import PlaylistCard from "~/components/card/playlist";
 import SongCard from "~/components/card/song";
 import Pill from "~/components/pill/pill";
 import SearchBar from "~/components/search/searchBar";
@@ -148,20 +149,13 @@ const Search = () => {
           renderItem={({ item }) => {
             if (!item?.images) return <></>;
             return (
-              <Pressable
-                className="my-2 flex flex-row gap-x-5"
-                onPress={() => router.push(`/playlist/${item.id}`)}
-              >
-                <Image
-                  source={{ uri: item.images[0]?.url ?? "" }}
-                  className="h-20 w-20 rounded-2xl"
-                  alt={item.name}
-                  contentFit="contain"
-                />
-                <View className="flex flex-col justify-center">
-                  <Text className="font-semibold text-white">{item.name}</Text>
-                </View>
-              </Pressable>
+              <PlaylistCard
+                id={item.id}
+                name={item.name}
+                image={item?.images[0]?.url!}
+                ownerName={item?.owner?.display_name!}
+                key={item.id}
+              />
             );
           }}
         />
