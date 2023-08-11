@@ -4,12 +4,14 @@ import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 
 import { api } from "~/utils/api";
+import Loader from "~/components/loader";
 import SearchBar from "~/components/search/searchBar";
 
 const Friends = () => {
   const [q, setQ] = useState<string>("");
   const router = useRouter();
-  const { data: channel, isLoading } = api.friend.channel.useQuery({ q });
+  const { data: channel, isFetching } = api.friend.channel.useQuery({ q });
+
   return (
     <View className=" flex-1 flex-col bg-black p-5">
       <View className="bg-black">
@@ -27,37 +29,40 @@ const Friends = () => {
       <FlatList
         data={channel}
         keyExtractor={({ channel }) => channel.toString() ?? ""}
-        renderItem={({ item }) => (
-          <Pressable
-            onPress={() =>
-              router.push({
-                pathname: `/friends/chat`,
-                params: {
-                  id: item.user?.id,
-                  channel: item.channel,
-                  name: item.user?.display_name,
-                },
-              })
-            }
-            className="mt-5 flex flex-row items-center justify-between border-b border-gray-700 pb-3"
-          >
-            <View className="flex flex-row items-center">
-              <Image
-                source={{ uri: item.user?.images }}
-                className="h-12 w-12 rounded-full bg-gray-800"
-                alt="profile"
-              />
-              <View className="ml-5">
-                <Text className="text-sm font-semibold text-white">
-                  {item.user?.display_name}
-                </Text>
-                <Text className="text-xs font-semibold text-gray-400">
-                  {item.user?.id}
-                </Text>
+        renderItem={({ item }) => {
+          if (isFetching) return <Loader type="Half" />;
+          return (
+            <Pressable
+              onPress={() =>
+                router.push({
+                  pathname: `/friends/chat`,
+                  params: {
+                    id: item.user?.id,
+                    channel: item.channel,
+                    name: item.user?.display_name,
+                  },
+                })
+              }
+              className="mt-5 flex flex-row items-center justify-between border-b border-gray-700 pb-3"
+            >
+              <View className="flex flex-row items-center">
+                <Image
+                  source={{ uri: item.user?.images }}
+                  className="h-12 w-12 rounded-full bg-gray-800"
+                  alt="profile"
+                />
+                <View className="ml-5">
+                  <Text className="text-sm font-semibold text-white">
+                    {item.user?.display_name}
+                  </Text>
+                  <Text className="text-xs font-semibold text-gray-400">
+                    {item.user?.id}
+                  </Text>
+                </View>
               </View>
-            </View>
-          </Pressable>
-        )}
+            </Pressable>
+          );
+        }}
       />
     </View>
   );

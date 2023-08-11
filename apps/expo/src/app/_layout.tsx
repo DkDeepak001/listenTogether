@@ -9,13 +9,19 @@ import { TRPCProvider } from "~/utils/api";
 import useAuthToken from "~/hooks/useAuthToken";
 
 export function useRefreshOnFocus<T>(refetch: () => Promise<T>) {
-  const { refreshToken } = useAuthToken();
   const firstTimeRef = useRef(true);
   useFocusEffect(
     useCallback(() => {
       if (firstTimeRef.current) {
+        console.log(
+          "useRefreshOnFocus================================================================================================",
+          firstTimeRef,
+        );
         firstTimeRef.current = false;
         void refetch();
+        setInterval(() => {
+          void refetch();
+        }, 50 * 60 * 1000);
         return;
       }
     }, [refetch]),

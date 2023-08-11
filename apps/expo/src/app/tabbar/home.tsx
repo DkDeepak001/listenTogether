@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import { FlatList, Pressable, Text, View } from "react-native";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+// import { TailSpin } from "react-loader-spinner";
 
 import { type Track } from "@acme/api/src/router/types";
 
@@ -9,6 +12,7 @@ import { api } from "~/utils/api";
 import { getGreeting } from "~/utils/greeting";
 import ArtistCard from "~/components/card/artist";
 import SongCard from "~/components/card/song";
+import Loader from "~/components/loader";
 import Pill from "~/components/pill/pill";
 import useAudio from "~/hooks/useAudio";
 import useAuthToken from "../../hooks/useAuthToken";
@@ -22,26 +26,39 @@ const Home = () => {
   const { handlePlay, isPlaying, currentTrack, isPaused } = useAudio();
   const { data: user, isLoading } = api.spotify.self.useQuery();
 
-  const { data: topTracks, refetch: refetchTopTracks } =
-    api.spotify.topTracks.useQuery();
-  const { data: topArtists, refetch: refetchTopArtist } =
-    api.spotify.topArtists.useQuery();
+  const {
+    data: topTracks,
+    refetch: refetchTopTracks,
+    isLoading: trackLoading,
+  } = api.spotify.topTracks.useQuery();
+  const {
+    data: topArtists,
+    refetch: refetchTopArtist,
+    isLoading: artistLoading,
+  } = api.spotify.topArtists.useQuery();
 
-  // TODO add types to error
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  if (topTracks?.error || topArtists?.error) {
-    console.log(topTracks, topArtists);
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    if (topTracks?.error?.status === 401 || topArtists?.error?.status === 401) {
-      console.log("updating token inside if");
-      updateToken(() => refetchTopTracks());
-      router.push("/tabbar/home");
+  const { mutateAsync: getNewToken } = api.user.getRefreshToken.useMutation({});
+
+  if (topTracks?.error! || topArtists?.error!) {
+    if (
+      topTracks?.error?.status! === 401 ||
+      topArtists?.error?.status! === 401
+    ) {
+      console.log(
+        "Token Expired================================================",
+      );
+      void handleRefreshToken();
       return;
     }
   }
-  if (isLoading || !user) return <Text>Loading...</Text>;
+
+  async function handleRefreshToken() {
+    const refreshToken = await AsyncStorage.getItem("refresh_token");
+    const newToken = await getNewToken({ refresh_token: refreshToken! });
+
+    await AsyncStorage.setItem("access_token", newToken.access_token);
+  }
+  if (isLoading || !user || trackLoading || artistLoading) return <Loader />;
 
   return (
     <View className=" flex-1  bg-black px-5 pt-5">

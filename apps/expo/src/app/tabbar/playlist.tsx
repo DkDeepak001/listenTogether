@@ -5,12 +5,14 @@ import { useRouter } from "expo-router";
 
 import { api } from "~/utils/api";
 import PlaylistCard from "~/components/card/playlist";
+import Loader from "~/components/loader";
 import pause from "../../../assets/playlist/pause.svg";
 import play from "../../../assets/playlist/play.svg";
 
 const Playlist = () => {
   const router = useRouter();
-  const { data: playlist } = api.spotify.getUserPlaylists.useQuery();
+  const { data: playlist, isLoading } = api.spotify.getUserPlaylists.useQuery();
+  if (isLoading) return <Loader />;
 
   return (
     <View className=" flex-1 bg-black p-5">

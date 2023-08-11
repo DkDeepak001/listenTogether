@@ -7,13 +7,14 @@ import { type Track } from "@acme/api/src/router/types";
 
 import { api } from "~/utils/api";
 import SongCard from "~/components/card/song";
+import Loader from "~/components/loader";
 import useAudio from "~/hooks/useAudio";
 
 const Uploaded = () => {
   const { currentTrack, handlePlay, isPaused } = useAudio();
   const router = useRouter();
   const { data: allSongs, isLoading } = api.upload.all.useQuery();
-  if (isLoading) return <Text>Loading...</Text>;
+  if (isLoading) return <Loader />;
 
   return (
     <View className="flex-1 bg-black p-5">

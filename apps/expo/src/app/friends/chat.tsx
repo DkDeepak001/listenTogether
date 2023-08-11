@@ -172,6 +172,8 @@ const ChatPage = () => {
     });
   };
   const handleSentMessage = async () => {
+    if (!messageText) return;
+    if (messageText.length === 0) return;
     setMessageText("");
     try {
       const response = await sendMessage({
@@ -187,15 +189,24 @@ const ChatPage = () => {
 
   return (
     <View className=" flex flex-1 flex-col items-center justify-center bg-black p-5">
-      <Text className="text-white">ChatPage</Text>
       <FlatList
         data={allMessage?.chatMessage}
+        ListEmptyComponent={() => (
+          <View className="flex flex-1 items-center justify-center">
+            <Text className="text-white">No messages</Text>
+          </View>
+        )}
+        className="mb-3 w-full"
         renderItem={({ item }) => (
-          <View className={`mb-2 flex w-full flex-row `}>
+          <View
+            className={`mb-2 flex w-full  flex-row ${
+              item.sender.id === user?.id ? "justify-end" : "justify-start"
+            }
+          `}
+          >
             <Text
-              className={`w-full  ${
-                item.sender.id === user?.id ? "text-right" : "text-left"
-              } text-white`}
+              className={`rounded-lg  px-3 py-2 text-white
+            ${item.sender.id === user?.id ? "bg-blue-400" : "bg-blue-700"}`}
             >
               {item.message}
             </Text>

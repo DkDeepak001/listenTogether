@@ -8,6 +8,7 @@ import { type Track } from "@acme/api/src/router/types";
 
 import { api } from "~/utils/api";
 import SongCard from "~/components/card/song";
+import Loader from "~/components/loader";
 import useAudio from "~/hooks/useAudio";
 
 const AlbumPage = () => {
@@ -18,7 +19,7 @@ const AlbumPage = () => {
 
   const { isPlaying, handlePlay, currentTrack, isPaused } = useAudio();
 
-  if (isLoading) return <Text className="text-black">Loading...</Text>;
+  if (isLoading) return <Loader />;
 
   return (
     <SafeAreaView className="flex-1 bg-black">

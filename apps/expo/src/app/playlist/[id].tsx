@@ -5,6 +5,7 @@ import { Image } from "expo-image";
 import { useLocalSearchParams } from "expo-router";
 
 import { api } from "~/utils/api";
+import Loader from "~/components/loader";
 import useAudio from "~/hooks/useAudio";
 import pause from "../../../assets/playlist/pause.svg";
 import play from "../../../assets/playlist/play.svg";
@@ -16,7 +17,7 @@ const PlaylistPage = () => {
   });
   const { handlePlay, currentTrack, isPaused } = useAudio();
 
-  if (isLoading) return <Text className="text-black">Loading...</Text>;
+  if (isLoading) return <Loader />;
 
   return (
     <SafeAreaView className="h-screen flex-1 bg-black">

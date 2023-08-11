@@ -30,13 +30,10 @@ const useAuthToken = () => {
   const fetchToken = async (callback: () => void) => {
     console.log("fetchToken from useAuthToken----------------------------");
     const refreshToken = await AsyncStorage.getItem("refresh_token");
-    const newToken = await getNewToken({ refresh_token: refreshToken ?? "" });
-    console.log(
-      parm,
-      "newToken from useAuthToken fetchToken----------------------------",
-    );
+    const newToken = await getNewToken({ refresh_token: refreshToken! });
+
     setToken(newToken.access_token ?? "");
-    await AsyncStorage.setItem("access_token", newToken.access_token ?? "");
+    await AsyncStorage.setItem("access_token", newToken.access_token);
     callback();
   };
 
