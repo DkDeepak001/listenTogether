@@ -61,6 +61,13 @@ export const createTRPCContext = async (opts: CreateNextContextOptions) => {
     userId: string;
   };
 
+  if (userId === undefined || userId === null)
+    return createInnerTRPCContext({
+      session: null,
+      userId: "",
+      accessToken: "",
+    });
+
   const refreshToken = await prisma.user.findUnique({
     where: {
       id: userId,
@@ -77,7 +84,7 @@ export const createTRPCContext = async (opts: CreateNextContextOptions) => {
   return createInnerTRPCContext({
     session: null,
     userId,
-    accessToken: accessToken.access_token,
+    accessToken: accessToken?.access_token,
   });
 };
 
