@@ -14,6 +14,8 @@ import { ZodError } from "zod";
 import type { Session } from "@acme/auth";
 import { prisma } from "@acme/db";
 
+import { type TokenResponse } from "./router/types";
+
 /**
  * 1. CONTEXT
  *
@@ -55,17 +57,27 @@ const createInnerTRPCContext = (opts: CreateContextOptions) => {
 export const createTRPCContext = async (opts: CreateNextContextOptions) => {
   const { req, res } = opts;
   const authHeader = req.headers.authorization;
-  const { userId, accessToken } = JSON.parse(authHeader!) as {
+  const { userId } = JSON.parse(authHeader!) as {
     userId: string;
-    accessToken: string;
   };
+
+  const refreshToken = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+    select: {
+      refreshToken: true,
+    },
+  });
+
+  const accessToken = await getNewAccesToke(refreshToken?.refreshToken!);
 
   // Get the session from the server using the unstable_getServerSession wrapper function
 
   return createInnerTRPCContext({
     session: null,
     userId,
-    accessToken,
+    accessToken: accessToken.access_token,
   });
 };
 
@@ -143,3 +155,26 @@ const enforceUserIsAuthed = t.middleware(async ({ ctx, next }) => {
  * @see https://trpc.io/docs/procedures
  */
 export const protectedProcedure = t.procedure.use(enforceUserIsAuthed);
+const getNewAccesToke = async (refreshToken: string) => {
+  return await fetch("https://accounts.spotify.com/api/token", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      Authorization:
+        "Basic " +
+        Buffer.from(
+          process.env.SPOTIFY_CLIENT_ID +
+            ":" +
+            process.env.SPOTIFY_CLIENT_SECRET,
+        ).toString("base64"),
+    },
+    body: `grant_type=refresh_token&refresh_token=${refreshToken}`,
+  })
+    .then((response) => response.json())
+    .then((data): Promise<TokenResponse> => {
+      return data as Promise<TokenResponse>;
+    })
+    .catch((error) => {
+      throw error;
+    });
+};

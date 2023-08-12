@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import { FlatList, Pressable, Text, View } from "react-native";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
@@ -15,13 +15,13 @@ import SongCard from "~/components/card/song";
 import Loader from "~/components/loader";
 import Pill from "~/components/pill/pill";
 import useAudio from "~/hooks/useAudio";
+import { useTokenStore } from "~/store/token";
 import useAuthToken from "../../hooks/useAuthToken";
 
 type TopType = "tracks" | "artists";
 const Home = () => {
   const router = useRouter();
   const [type, setType] = useState<TopType>("tracks");
-  const { updateToken } = useAuthToken();
 
   const { handlePlay, isPlaying, currentTrack, isPaused } = useAudio();
   const { data: user, isLoading } = api.spotify.self.useQuery();
@@ -39,25 +39,6 @@ const Home = () => {
 
   const { mutateAsync: getNewToken } = api.user.getRefreshToken.useMutation({});
 
-  if (topTracks?.error! || topArtists?.error!) {
-    if (
-      topTracks?.error?.status! === 401 ||
-      topArtists?.error?.status! === 401
-    ) {
-      console.log(
-        "Token Expired================================================",
-      );
-      void handleRefreshToken();
-      return;
-    }
-  }
-
-  async function handleRefreshToken() {
-    const refreshToken = await AsyncStorage.getItem("refresh_token");
-    const newToken = await getNewToken({ refresh_token: refreshToken! });
-
-    await AsyncStorage.setItem("access_token", newToken.access_token);
-  }
   if (isLoading || !user || trackLoading || artistLoading) return <Loader />;
 
   return (
