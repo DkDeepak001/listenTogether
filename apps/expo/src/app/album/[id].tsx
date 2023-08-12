@@ -17,7 +17,7 @@ const AlbumPage = () => {
     id: id as string,
   });
 
-  const { isPlaying, handlePlay, currentTrack, isPaused } = useAudio();
+  const { handlePlay, currentTrack, isPaused } = useAudio();
 
   if (isLoading) return <Loader />;
 

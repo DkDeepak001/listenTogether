@@ -8,33 +8,35 @@ import { type Track } from "@acme/api/src/router/types";
 
 import { api } from "~/utils/api";
 import SongCard from "~/components/card/song";
+import Loader from "~/components/loader";
 import useAudio from "~/hooks/useAudio";
-import pause from "../../../assets/playlist/pause.svg";
-import play from "../../../assets/playlist/play.svg";
 
 const ArtistPage = () => {
   const { id } = useLocalSearchParams();
+
   const { data: artist, isLoading } = api.spotify.artist.useQuery({
     id: id as string,
   });
 
   const { isPaused, handlePlay, currentTrack } = useAudio();
 
-  if (isLoading) return <Text className="text-black">Loading...</Text>;
+  if (isLoading) return <Loader />;
 
   return (
     <SafeAreaView className="flex-1 bg-black">
       <FlatList
         data={artist?.topTracks?.tracks ?? []}
         renderItem={({ item }) => (
-          <SongCard
-            item={item}
-            currentTrack={currentTrack}
-            handlePlay={(item: Track, type: "SPOTIFY" | "UPLOAD" | null) =>
-              handlePlay(item, type)
-            }
-            isPaused={isPaused}
-          />
+          <View className="px-4">
+            <SongCard
+              item={item}
+              currentTrack={currentTrack}
+              handlePlay={(item: Track, type: "SPOTIFY" | "UPLOAD" | null) =>
+                handlePlay(item, type)
+              }
+              isPaused={isPaused}
+            />
+          </View>
         )}
         ListEmptyComponent={() => (
           <Text className="text-white">No tracks found</Text>

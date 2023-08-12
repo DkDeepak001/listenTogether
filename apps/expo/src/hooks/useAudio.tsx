@@ -33,6 +33,7 @@ const useAudio = () => {
     totalDuration,
   } = useSongStore();
 
+  const { data: allUploads } = api.upload.all.useQuery();
   const { queue, setQueue } = useQueueStore();
   const [currentDuration, setCurrentDuration] = useState(0);
 
@@ -44,7 +45,7 @@ const useAudio = () => {
           (await currentSound?.getStatusAsync()) as AVPlaybackStatusSuccess;
         setCurrentDuration(status.positionMillis);
         if (status.positionMillis >= status.durationMillis!) {
-          console.log(status);
+          setIsPaused(true);
           // await currentSound.unloadAsync();
           await handleNextSong();
         } else {
@@ -74,13 +75,13 @@ const useAudio = () => {
         setCurrentSound(null);
         setCurrentTrack(null);
 
-        // if (queue.length <= 0) await handleAddToQueue();
+        if (queue.length <= 0) await handleAddToQueue();
       }
       setCurrentSound(null);
 
       await Audio.setAudioModeAsync({
         playsInSilentModeIOS: true,
-        staysActiveInBackground: false,
+        staysActiveInBackground: true,
         shouldDuckAndroid: true,
       });
 
@@ -110,6 +111,7 @@ const useAudio = () => {
       setCurrentSound(sound);
       setCurrentTrack(item);
       setIsPlaying(status.isLoaded);
+      setIsPaused(false);
       setTotalDuration(status.durationMillis as number);
       await sound.playAsync();
     } catch (error) {
@@ -132,24 +134,18 @@ const useAudio = () => {
       console.log(error);
     }
   };
-  const context = api.useContext();
 
   const handleAddToQueue = async () => {
-    const songs = context.spotify.topTracks.getData();
-    const shuffledSong = shuffleArray<Track>(songs?.items!);
+    const shuffledSong = shuffleArray<Track>(allUploads!);
     setQueue([...shuffledSong]);
   };
   const handleNextSong = async () => {
     try {
-      console.log("handleNextSong_______");
-      console.log(queue.length);
       if (queue.length > 0) {
         const nextSong = queue.shift();
-        console.log(nextSong?.name);
         if (nextSong) {
           setQueue([...queue]);
           handlePlay(nextSong, "SPOTIFY");
-          console.log(queue[0]?.name);
         }
       }
     } catch (error) {
@@ -169,8 +165,6 @@ const useAudio = () => {
       await currentSound?.unloadAsync();
       setCurrentSound(null);
       setCurrentTrack(null);
-
-      console.log(currentTrack, wsSound, "uri-------------------------------");
 
       const { sound, status } = (await Audio.Sound.createAsync(
         {

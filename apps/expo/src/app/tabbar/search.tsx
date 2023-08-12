@@ -12,8 +12,6 @@ import SongCard from "~/components/card/song";
 import Pill from "~/components/pill/pill";
 import SearchBar from "~/components/search/searchBar";
 import useAudio from "~/hooks/useAudio";
-import pause from "../../../assets/playlist/pause.svg";
-import play from "../../../assets/playlist/play.svg";
 
 export type SearchType = "tracks" | "artist" | "albums" | "playlist";
 

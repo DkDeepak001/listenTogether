@@ -38,36 +38,58 @@ export const spotifyRouter = createTRPCRouter({
       throw new Error("error in getUser");
     }
   }),
-  topTracks: protectedProcedure.query(async ({ ctx }) => {
-    return await fetch(`https://api.spotify.com/v1/me/top/tracks?limit=50`, {
-      method: "GET",
-      headers: {
-        Authorization: "Bearer " + ctx.accessToken,
-      },
-    })
-      .then((res) => res.json())
-      .then((data): Promise<TrackResponse> => {
-        return data as Promise<TrackResponse>;
-      })
-      .catch((err) => {
-        console.log(err, "err from spotify router");
-      });
-  }),
-  topArtists: protectedProcedure.query(async ({ ctx }) => {
-    return await fetch(`https://api.spotify.com/v1/me/top/artists`, {
-      method: "GET",
-      headers: {
-        Authorization: "Bearer " + ctx.accessToken,
-      },
-    })
-      .then((res) => res.json())
-      .then((data): Promise<TopArtistsResponse> => {
-        return data as Promise<TopArtistsResponse>;
-      })
-      .catch((err) => {
-        console.log(err, "err from spotify router");
-      });
-  }),
+  topTracks: protectedProcedure
+    .input(
+      z.object({
+        limit: z.number(),
+        offset: z.number(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      console.log(input, "input from spotify router");
+      return await fetch(
+        `https://api.spotify.com/v1/me/top/tracks?limit=${input.limit}&offset=${input.offset}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: "Bearer " + ctx.accessToken,
+          },
+        },
+      )
+        .then((res) => res.json())
+        .then((data): Promise<TrackResponse> => {
+          console.log(data.items.length, "data from spotify router");
+          return data as Promise<TrackResponse>;
+        })
+        .catch((err) => {
+          console.log(err, "err from spotify router");
+        });
+    }),
+  topArtists: protectedProcedure
+    .input(
+      z.object({
+        limit: z.number(),
+        offset: z.number(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      return await fetch(
+        `https://api.spotify.com/v1/me/top/artists?limit=${input.limit}&offset=${input.offset}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: "Bearer " + ctx.accessToken,
+          },
+        },
+      )
+        .then((res) => res.json())
+        .then((data): Promise<TopArtistsResponse> => {
+          return data as Promise<TopArtistsResponse>;
+        })
+        .catch((err) => {
+          console.log(err, "err from spotify router");
+        });
+    }),
 
   getUserPlaylists: protectedProcedure.query(async ({ ctx }) => {
     return await fetch(
@@ -96,7 +118,7 @@ export const spotifyRouter = createTRPCRouter({
     )
     .query(async ({ ctx, input }) => {
       return await fetch(
-        `https://api.spotify.com/v1/search/?q=${input.q}&type=album,playlist,track,artist&limit=10`,
+        `https://api.spotify.com/v1/search/?q=${input.q}&type=album,playlist,track,artist&limit=50`,
         {
           method: "GET",
           headers: {

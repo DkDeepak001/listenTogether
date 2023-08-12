@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { Pressable, Text, ToastAndroid, View } from "react-native";
+import React from "react";
+import { Pressable, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { type AVPlaybackStatus, type AVPlaybackStatusSuccess } from "expo-av";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import Slider from "@react-native-community/slider";
@@ -17,75 +16,13 @@ import resume from "../../../assets/player/resume.svg";
 
 const FullPlayer = () => {
   const router = useRouter();
-  // const { player, playPercent, formattedEndduration, formattedStartingTime } =
-  //   usePlayer();
 
   const { currentTrack, pauseSong, isPaused, currentDuration, handleSeekSong } =
     useAudio();
   const { totalDuration } = useSongStore();
-  // const [status, setStatus] = useState<AVPlaybackStatus | null>(null);
-  // useEffect(() => {
-  //   let interval: NodeJS.Timeout;
-  //   const updateCurrentDuration = async () => {
-  //     if (isPlaying && currentSound) {
-  //       const status: AVPlaybackStatus = await currentSound.getStatusAsync();
-  //       setStatus(status);
-  //     } else {
-  //       clearInterval(interval);
-  //     }
-  //   };
-
-  //   interval = setInterval(updateCurrentDuration, 500);
-
-  //   return () => clearInterval(interval);
-  // }, [isPlaying, currentSound]);
-  const context = api.useContext();
-  const user = context.spotify.self.getData();
-  // const { mutateAsync: pauseSong } = api.player.pauseSong.useMutation();
-  const { mutateAsync: playSong } = api.player.playSong.useMutation();
-  const { mutateAsync: nextSong } = api.player.nextSong.useMutation();
-  const { mutateAsync: prevSong } = api.player.prevSong.useMutation();
-  const { mutateAsync: seekSong } = api.player.seekSong.useMutation();
-
-  // if (!Number(playPercent)) return;
-
-  // if (player.currently_playing_type === "ad") {
-  //   ToastAndroid.show("Playing ads is not supported", ToastAndroid.SHORT);
-  //   router.back();
-  // }
 
   const handlePauseSong = async () => {
     pauseSong();
-    // if (user?.product === "free")
-    //   ToastAndroid.show(
-    //     "You need to have a premium account to use this feature",
-    //     ToastAndroid.SHORT,
-    //   );
-    // else {
-    //   if (player.is_playing) {
-    //     await pauseSong({ device_id: player.device.id });
-    //   } else {
-    //     await playSong({ device_id: player.device.id });
-    //   }
-    // }
-  };
-
-  const handleNextSong = async () => {
-    // if (user?.product === "free")
-    //   ToastAndroid.show(
-    //     "You need to have a premium account to use this feature",
-    //     ToastAndroid.SHORT,
-    //   );
-    // else await nextSong({ device_id: player.device.id });
-  };
-
-  const handlePrevSong = async () => {
-    // if (user?.product === "free")
-    //   ToastAndroid.show(
-    //     "You need to have a premium account to use this feature",
-    //     ToastAndroid.SHORT,
-    //   );
-    // else await prevSong({ device_id: player.device.id });
   };
 
   const playPercent = Math.floor((currentDuration / totalDuration) * 100) ?? 0;
@@ -115,7 +52,7 @@ const FullPlayer = () => {
         <View className="mt-8 flex flex-row items-center justify-center gap-x-5">
           <Pressable
             className="h-10 w-10 items-center justify-center rounded-full bg-white"
-            onPress={() => void handlePrevSong()}
+            // onPress={() => void handlePrevSong()}
           >
             <Image
               source={next}
@@ -135,7 +72,7 @@ const FullPlayer = () => {
           </Pressable>
           <Pressable
             className="h-10 w-10 items-center justify-center rounded-full bg-white"
-            onPress={() => void handleNextSong()}
+            // onPress={() => void handleNextSong()}
           >
             <Image source={next} className="h-6 w-6 " alt="next" />
           </Pressable>

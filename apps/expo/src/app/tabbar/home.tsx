@@ -15,8 +15,6 @@ import SongCard from "~/components/card/song";
 import Loader from "~/components/loader";
 import Pill from "~/components/pill/pill";
 import useAudio from "~/hooks/useAudio";
-import { useTokenStore } from "~/store/token";
-import useAuthToken from "../../hooks/useAuthToken";
 
 type TopType = "tracks" | "artists";
 const Home = () => {
@@ -26,20 +24,46 @@ const Home = () => {
   const { handlePlay, isPlaying, currentTrack, isPaused } = useAudio();
   const { data: user, isLoading } = api.spotify.self.useQuery();
 
+  const [trackLimit, setTrackLimit] = useState(10);
+  const [artistLimit, setArtistLimit] = useState(10);
+
+  const context = api.useContext();
   const {
     data: topTracks,
     refetch: refetchTopTracks,
+
     isLoading: trackLoading,
-  } = api.spotify.topTracks.useQuery();
+  } = api.spotify.topTracks.useQuery(
+    {
+      limit: trackLimit,
+      offset: 0,
+    },
+    {
+      keepPreviousData: true,
+    },
+  );
   const {
     data: topArtists,
     refetch: refetchTopArtist,
     isLoading: artistLoading,
-  } = api.spotify.topArtists.useQuery();
+  } = api.spotify.topArtists.useQuery(
+    {
+      limit: artistLimit,
+      offset: 0,
+    },
+    {
+      keepPreviousData: true,
+    },
+  );
 
-  const { mutateAsync: getNewToken } = api.user.getRefreshToken.useMutation({});
+  const handleTrackInfinityScroll = async () => {
+    if (trackLimit < 50) {
+      setTrackLimit(trackLimit + 10);
+    }
+    await refetchTopTracks();
+  };
 
-  if (isLoading || !user || trackLoading || artistLoading) return <Loader />;
+  if (isLoading || !user) return <Loader />;
 
   return (
     <View className=" flex-1  bg-black px-5 pt-5">
@@ -76,6 +100,8 @@ const Home = () => {
       {type === "tracks" && (
         <FlatList
           data={topTracks?.items ?? []}
+          onEndReached={handleTrackInfinityScroll}
+          onEndReachedThreshold={0.5}
           ListHeaderComponent={() => (
             <Text className="mb-3 text-xl font-extrabold text-white">
               Top Tracks
@@ -103,6 +129,13 @@ const Home = () => {
             justifyContent: "space-between",
             paddingHorizontal: "2%",
           }}
+          onEndReached={() => {
+            if (artistLimit < 50) {
+              setArtistLimit(artistLimit + 10);
+            }
+            refetchTopArtist();
+          }}
+          onEndReachedThreshold={0.5}
           numColumns={2}
           ListHeaderComponent={() => (
             <Text className="mb-3 text-xl font-extrabold text-white">
